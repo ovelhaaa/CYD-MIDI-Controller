@@ -101,6 +101,8 @@ class MIDICallbacks: public BLEServerCallbacks {
       for (int i = 0; i < 128; i++) {
         sendMIDI(0x80, i, 0);
       }
+      // Restart advertising so new connections can be made
+      BLEDevice::startAdvertising();
     }
 };
 
