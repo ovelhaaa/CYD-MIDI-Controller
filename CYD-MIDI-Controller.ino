@@ -459,6 +459,7 @@ void enterMode(AppMode mode) {
 void exitToMenu() {
   currentMode = MENU;
   stopAllModes();
+  delay(50);
   drawMenu();
   updateStatus();
 }

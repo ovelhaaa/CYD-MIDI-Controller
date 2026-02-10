@@ -132,6 +132,11 @@ void drawRandomGenControls() {
 void handleRandomGeneratorMode() {
   // Back button
   if (touch.justPressed && isButtonPressed(10, 10, 50, 25)) {
+    if (randomGen.currentNote != -1) {
+      sendMIDI(0x80, randomGen.currentNote, 0);
+      randomGen.currentNote = -1;
+    }
+    randomGen.isPlaying = false;
     exitToMenu();
     return;
   }

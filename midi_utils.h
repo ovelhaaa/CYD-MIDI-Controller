@@ -44,7 +44,6 @@ String getNoteNameFromMIDI(int midiNote) {
 }
 
 void stopAllModes() {
-  // Stop all MIDI notes
   for (int i = 0; i < 128; i++) {
     sendMIDI(0x80, i, 0);
   }

@@ -104,6 +104,13 @@ void handleSequencerMode() {
   // Back button
   if (touch.justPressed && isButtonPressed(10, 10, 50, 25)) {
     sequencerPlaying = false;
+    int drumNotes[] = {36, 38, 42, 46};
+    for (int track = 0; track < SEQ_TRACKS; track++) {
+      if (noteOffTime[track] > 0) {
+        sendMIDI(0x80, drumNotes[track], 0);
+        noteOffTime[track] = 0;
+      }
+    }
     exitToMenu();
     return;
   }

@@ -163,6 +163,11 @@ void drawPianoKeys() {
 void handleArpeggiatorMode() {
   // Back button
   if (touch.justPressed && isButtonPressed(10, 10, 50, 25)) {
+    if (arp.currentNote != -1) {
+      sendMIDI(0x80, arp.currentNote, 0);
+      arp.currentNote = -1;
+    }
+    arp.isPlaying = false;
     exitToMenu();
     return;
   }
