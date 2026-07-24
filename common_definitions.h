@@ -2,7 +2,6 @@
 #define COMMON_DEFINITIONS_H
 
 #include <TFT_eSPI.h>
-#include <XPT2046_Touchscreen.h>
 #include <BLEDevice.h>
 
 // Color scheme
@@ -20,6 +19,13 @@
 // BLE MIDI UUIDs
 #define SERVICE_UUID        "03b80e5a-ede8-4b33-a751-6ce34ec4c700"
 #define CHARACTERISTIC_UUID "7772e5db-3868-4112-a1a9-f2669d106bf3"
+
+// Cheap Yellow Display dual-USB touch controller pins.
+#define CYD_TOUCH_MOSI 32
+#define CYD_TOUCH_MISO 39
+#define CYD_TOUCH_CLK 25
+#define CYD_TOUCH_CS 33
+#define CYD_TOUCH_Z_THRESHOLD 400
 
 // Touch handling
 struct TouchState {
@@ -58,7 +64,6 @@ extern const int NUM_SCALES;
 
 // Global objects - declared in main file
 extern TFT_eSPI tft;
-extern XPT2046_Touchscreen ts;
 extern BLECharacteristic *pCharacteristic;
 extern bool deviceConnected;
 extern uint8_t midiPacket[];

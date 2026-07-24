@@ -4,7 +4,6 @@
  *******************************************************************/
 
 #include <SPI.h>
-#include <XPT2046_Touchscreen.h>
 #include <TFT_eSPI.h>
 #include <BLEDevice.h>
 #include <BLEUtils.h>
@@ -25,15 +24,7 @@
 #include "ui_elements.h"
 #include "midi_utils.h"
 
-// Hardware setup
-#define XPT2046_IRQ -1
-#define XPT2046_MOSI 32
-#define XPT2046_MISO 39
-#define XPT2046_CLK 25
-#define XPT2046_CS 33
-
 // Global objects
-XPT2046_Touchscreen ts(XPT2046_CS, XPT2046_IRQ);
 TFT_eSPI tft = TFT_eSPI();
 
 // BLE MIDI globals
@@ -109,9 +100,7 @@ void setup() {
   Serial.begin(115200);
   
   // Touch setup
-  ts.begin();
-  SPI.begin(XPT2046_CLK, XPT2046_MISO, XPT2046_MOSI, XPT2046_CS);
-  ts.setRotation(1);
+  cydTouchBegin();
   
   // Display setup
   tft.init();

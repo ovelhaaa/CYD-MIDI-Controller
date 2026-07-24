@@ -2,6 +2,7 @@
 #define UI_ELEMENTS_H
 
 #include "common_definitions.h"
+#include "cyd_touch.h"
 
 // UI function declarations
 void updateTouch();
@@ -13,15 +14,16 @@ void exitToMenu();
 
 // UI implementations
 void updateTouch() {
+  CYDTouchPoint p;
+
   touch.wasPressed = touch.isPressed;
-  touch.isPressed = ts.tirqTouched() && ts.touched();
+  touch.isPressed = cydTouchRead(p);
   touch.justPressed = touch.isPressed && !touch.wasPressed;
   touch.justReleased = !touch.isPressed && touch.wasPressed;
   
   if (touch.isPressed) {
-    TS_Point p = ts.getPoint();
-    touch.x = map(p.x, 200, 3700, 0, 320);
-    touch.y = map(p.y, 240, 3800, 0, 240);
+    touch.x = constrain(map(p.x, 240, 3800, 0, 320), 0, 319);
+    touch.y = constrain(map(p.y, 3700, 200, 0, 240), 0, 239);
   }
 }
 
