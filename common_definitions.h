@@ -5,16 +5,18 @@
 #include <BLEDevice.h>
 
 // Color scheme
-#define THEME_BG         0x0841
-#define THEME_SURFACE    0x2945
-#define THEME_PRIMARY    0x06FF
+#define THEME_BG         0x0000
+#define THEME_SURFACE    0x18E3
+#define THEME_PANEL      0x10A2
+#define THEME_BORDER     0x39E7
+#define THEME_PRIMARY    0x05FF
 #define THEME_SECONDARY  0xFD20
 #define THEME_ACCENT     0x07FF
 #define THEME_SUCCESS    0x07E0
 #define THEME_WARNING    0xFFE0
 #define THEME_ERROR      0xF800
 #define THEME_TEXT       0xFFFF
-#define THEME_TEXT_DIM   0x8410
+#define THEME_TEXT_DIM   0x9CF3
 
 // BLE MIDI UUIDs
 #define SERVICE_UUID        "03b80e5a-ede8-4b33-a751-6ce34ec4c700"

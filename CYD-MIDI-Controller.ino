@@ -59,16 +59,16 @@ struct AppIcon {
 
 #define MAX_APPS 12  // Can easily expand to 3x4 grid
 AppIcon apps[] = {
-  {"KEYS", "♪", 0xF800, KEYBOARD},     // Red
-  {"BEATS", "♫", 0xFD00, SEQUENCER},   // Orange
-  {"ZEN", "●", 0xFFE0, BOUNCING_BALL}, // Yellow
-  {"DROP", "⬇", 0x07E0, PHYSICS_DROP}, // Green
-  {"RNG", "※", 0x001F, RANDOM_GENERATOR}, // Blue
-  {"XY PAD", "◈", 0x781F, XY_PAD},     // Purple
-  {"ARP", "↗", 0xF81F, ARPEGGIATOR},   // Magenta
-  {"GRID", "▣", 0x07FF, GRID_PIANO},   // Cyan
-  {"CHORD", "⚘", 0xFBE0, AUTO_CHORD},  // Light Orange
-  {"LFO", "", 0xAFE5, LFO}             // Light Green
+  {"KEYS", "", 0xF965, KEYBOARD},
+  {"BEATS", "", 0xFD60, SEQUENCER},
+  {"ZEN", "", 0xBFE0, BOUNCING_BALL},
+  {"DROP", "", 0x07D0, PHYSICS_DROP},
+  {"RNG", "", 0x35DF, RANDOM_GENERATOR},
+  {"XY PAD", "", 0x8A7F, XY_PAD},
+  {"ARP", "", 0xF81F, ARPEGGIATOR},
+  {"GRID", "", 0x05FF, GRID_PIANO},
+  {"CHORD", "", 0xFBE0, AUTO_CHORD},
+  {"LFO", "", 0x97F3, LFO}
 };
 
 int numApps = 10;
@@ -127,6 +127,7 @@ void setup() {
     BLEUUID(CHARACTERISTIC_UUID),
     BLECharacteristic::PROPERTY_READ | 
     BLECharacteristic::PROPERTY_WRITE | 
+    BLECharacteristic::PROPERTY_WRITE_NR |
     BLECharacteristic::PROPERTY_NOTIFY
   );
   
@@ -211,59 +212,53 @@ void drawMenu() {
   tft.fillScreen(THEME_BG);
   
   // Header
-  tft.fillRect(0, 0, 320, 50, THEME_SURFACE);
-  tft.drawFastHLine(0, 50, 320, THEME_PRIMARY);
-  tft.setTextColor(THEME_PRIMARY, THEME_SURFACE);
-  tft.drawCentreString("MIDI CONTROLLER", 160, 12, 4);
+  tft.fillRect(0, 0, 320, 48, THEME_SURFACE);
+  tft.fillRect(0, 47, 320, 1, THEME_BORDER);
+  tft.fillRect(0, 48, 320, 2, THEME_PRIMARY);
+  tft.setTextColor(THEME_TEXT, THEME_SURFACE);
+  tft.drawString("CYD MIDI", 12, 8, 4);
   tft.setTextColor(THEME_TEXT_DIM, THEME_SURFACE);
-  tft.drawCentreString("Cheap Yellow Display", 160, 32, 2);
+  tft.drawString("controller", 14, 30, 2);
   
   // Version number
-  tft.setTextColor(THEME_TEXT_DIM, THEME_SURFACE);
-  tft.drawString("v0.1", 280, 37, 1);
+  uint16_t statusColor = deviceConnected ? THEME_SUCCESS : THEME_ERROR;
+  uint16_t statusBg = deviceConnected ? 0x0340 : 0x2800;
+  tft.fillRoundRect(222, 11, 86, 24, 5, statusBg);
+  tft.drawRoundRect(222, 11, 86, 24, 5, statusColor);
+  tft.fillCircle(236, 23, 4, statusColor);
+  tft.setTextColor(THEME_TEXT, statusBg);
+  tft.drawString(deviceConnected ? "BLE ON" : "WAITING", 246, 17, 2);
   
-  // Dynamic grid layout - 5 icons per row
-  int iconSize = 40;
-  int spacing = 8;  // Slightly smaller spacing for 5 columns
-  int cols = 5;  // Always 5 icons per row
-  int rows = (numApps + cols - 1) / cols;  // Calculate needed rows
-  int startX = (320 - (cols * iconSize + (cols-1) * spacing)) / 2;
-  int startY = 65;
-  
-  // Connection status
-  if (!deviceConnected) {
-    tft.setTextColor(THEME_ERROR, THEME_BG);
-    tft.drawCentreString("BLE WAITING...", 160, 210, 2);
-  } else {
-    // Clear the waiting message when connected
-    tft.fillRect(100, 200, 120, 20, THEME_BG);
-  }
-  tft.setTextColor(deviceConnected ? THEME_SUCCESS : THEME_ERROR, THEME_BG);
-  tft.drawString(deviceConnected ? "●" : "○", 290, 55, 2);
+  // App grid
+  int cellW = 58;
+  int cellH = 62;
+  int iconSize = 36;
+  int spacing = 4;
+  int rowSpacing = 10;
+  int cols = 5;
+  int startX = (320 - (cols * cellW + (cols - 1) * spacing)) / 2;
+  int startY = 62;
   
   for (int i = 0; i < numApps; i++) {
     int col = i % cols;
     int row = i / cols;
-    int x = startX + col * (iconSize + spacing);
-    int y = startY + row * (iconSize + spacing + 15);
+    int x = startX + col * (cellW + spacing);
+    int y = startY + row * (cellH + rowSpacing);
     
-    // App icon background
     uint16_t iconColor = apps[i].color;
     
-    tft.fillRoundRect(x, y, iconSize, iconSize, 8, iconColor);
-    tft.drawRoundRect(x, y, iconSize, iconSize, 8, THEME_TEXT);
+    tft.fillRoundRect(x, y, cellW, cellH, 6, THEME_PANEL);
+    tft.drawRoundRect(x, y, cellW, cellH, 6, THEME_BORDER);
+    tft.fillRoundRect(x + 11, y + 7, iconSize, iconSize, 6, iconColor);
     
-    // Draw app-specific graphics
-    drawAppGraphics(apps[i].mode, x, y, iconSize);
+    drawAppGraphics(apps[i].mode, x + 11, y + 7, iconSize);
     
-    // Icon symbol
-    tft.setTextColor(THEME_BG, iconColor);
-    tft.drawCentreString(apps[i].symbol, x + iconSize/2, y + iconSize/2 - 8, 2);
-    
-    // App name
-    tft.setTextColor(THEME_TEXT, THEME_BG);
-    tft.drawCentreString(apps[i].name, x + iconSize/2, y + iconSize + 5, 1);
+    tft.setTextColor(THEME_TEXT, THEME_PANEL);
+    tft.drawCentreString(apps[i].name, x + cellW / 2, y + 47, 1);
   }
+
+  tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
+  tft.drawCentreString(deviceConnected ? "MIDI ready" : "Open MIDIberry or BLE-MIDI Connect", 160, 220, 2);
 }
 
 void drawAppGraphics(AppMode mode, int x, int y, int iconSize) {
@@ -394,19 +389,21 @@ void drawAppGraphics(AppMode mode, int x, int y, int iconSize) {
 }
 
 void handleMenuTouch() {
-  int iconSize = 40;
-  int spacing = 8;  // Matching the drawMenu spacing
-  int cols = 5;     // Always 5 icons per row
-  int startX = (320 - (cols * iconSize + (cols-1) * spacing)) / 2;
-  int startY = 65;
+  int cellW = 58;
+  int cellH = 62;
+  int spacing = 4;
+  int rowSpacing = 10;
+  int cols = 5;
+  int startX = (320 - (cols * cellW + (cols - 1) * spacing)) / 2;
+  int startY = 62;
   
   for (int i = 0; i < numApps; i++) {
     int col = i % cols;
     int row = i / cols;
-    int x = startX + col * (iconSize + spacing);
-    int y = startY + row * (iconSize + spacing + 15);
+    int x = startX + col * (cellW + spacing);
+    int y = startY + row * (cellH + rowSpacing);
     
-    if (isButtonPressed(x, y, iconSize, iconSize)) {
+    if (isButtonPressed(x, y, cellW, cellH)) {
       enterMode(apps[i].mode);
       return;
     }

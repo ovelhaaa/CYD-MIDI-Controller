@@ -15,8 +15,10 @@ void exitToMenu();
 // UI implementations
 void updateTouch() {
   CYDTouchPoint p;
+#ifdef DEBUG_TOUCH
   static uint32_t lastTouchLogMs = 0;
   static uint32_t lastIdleDrawMs = 0;
+#endif
 
   touch.wasPressed = touch.isPressed;
   touch.isPressed = cydTouchRead(p);
@@ -24,12 +26,20 @@ void updateTouch() {
   touch.justReleased = !touch.isPressed && touch.wasPressed;
   
   if (touch.isPressed) {
-    touch.x = constrain(map(p.x, 240, 3800, 0, 320), 0, 319);
-    touch.y = constrain(map(p.y, 200, 3700, 0, 240), 0, 239);
+    int mappedX = constrain(map(p.x, 240, 3800, 0, 320), 0, 319);
+    int mappedY = constrain(map(p.y, 200, 3700, 0, 240), 0, 239);
+    if (touch.wasPressed) {
+      touch.x = (touch.x * 3 + mappedX) / 4;
+      touch.y = (touch.y * 3 + mappedY) / 4;
+    } else {
+      touch.x = mappedX;
+      touch.y = mappedY;
+    }
     touch.rawX = p.x;
     touch.rawY = p.y;
     touch.rawZ = p.z;
 
+#ifdef DEBUG_TOUCH
     if (currentMode == MENU && millis() - lastTouchLogMs > 120) {
       tft.fillRect(0, 224, 190, 16, THEME_BG);
       tft.setTextColor(THEME_SUCCESS, THEME_BG);
@@ -38,11 +48,14 @@ void updateTouch() {
       Serial.printf("touch raw x=%d y=%d z=%d mapped x=%d y=%d\n", touch.rawX, touch.rawY, touch.rawZ, touch.x, touch.y);
       lastTouchLogMs = millis();
     }
+#endif
+#ifdef DEBUG_TOUCH
   } else if (currentMode == MENU && millis() - lastIdleDrawMs > 1000) {
     tft.fillRect(0, 224, 190, 16, THEME_BG);
     tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
     tft.drawString("T:--", 4, 226, 1);
     lastIdleDrawMs = millis();
+#endif
   }
 }
 
@@ -51,31 +64,30 @@ bool isButtonPressed(int x, int y, int w, int h) {
 }
 
 void drawRoundButton(int x, int y, int w, int h, String text, uint16_t color, bool pressed) {
-  uint16_t bgColor = pressed ? color : THEME_SURFACE;
+  uint16_t bgColor = pressed ? color : THEME_PANEL;
   uint16_t borderColor = color;
-  uint16_t textColor = pressed ? THEME_BG : color;
+  uint16_t textColor = pressed ? THEME_BG : THEME_TEXT;
   
-  tft.fillRoundRect(x, y, w, h, 8, bgColor);
-  tft.drawRoundRect(x, y, w, h, 8, borderColor);
-  tft.drawRoundRect(x+1, y+1, w-2, h-2, 7, borderColor);
+  tft.fillRoundRect(x, y, w, h, 6, bgColor);
+  tft.drawRoundRect(x, y, w, h, 6, borderColor);
   
   tft.setTextColor(textColor, bgColor);
-  tft.drawCentreString(text, x + w/2, y + h/2 - 8, 2);
+  tft.drawCentreString(text, x + w/2, y + h/2 - 7, 2);
 }
 
 void drawHeader(String title, String subtitle) {
-  tft.fillRect(0, 0, 320, 45, THEME_SURFACE);
-  tft.drawFastHLine(0, 45, 320, THEME_PRIMARY);
+  tft.fillRect(0, 0, 320, 42, THEME_SURFACE);
+  tft.drawFastHLine(0, 42, 320, THEME_BORDER);
   
   tft.setTextColor(THEME_TEXT, THEME_SURFACE);
-  tft.drawCentreString(title, 160, 8, 4);
+  tft.drawCentreString(title, 160, 6, 4);
   
   if (subtitle.length() > 0) {
     tft.setTextColor(THEME_TEXT_DIM, THEME_SURFACE);
-    tft.drawCentreString(subtitle, 160, 28, 2);
+    tft.drawCentreString(subtitle, 160, 27, 2);
   }
   
-  drawRoundButton(10, 10, 50, 25, "BACK", THEME_ERROR);
+  drawRoundButton(8, 8, 46, 26, "BACK", THEME_ERROR);
 }
 
 void updateStatus() {
