@@ -25,7 +25,7 @@ void updateTouch() {
   
   if (touch.isPressed) {
     touch.x = constrain(map(p.x, 240, 3800, 0, 320), 0, 319);
-    touch.y = constrain(map(p.y, 3700, 200, 0, 240), 0, 239);
+    touch.y = constrain(map(p.y, 200, 3700, 0, 240), 0, 239);
     touch.rawX = p.x;
     touch.rawY = p.y;
     touch.rawZ = p.z;
