@@ -40,6 +40,7 @@ AppMode currentMode = MENU;
 
 // Forward declarations
 void drawMenu();
+void drawMenuCard(int index, bool pressed = false);
 
 // Scalable App Icon System
 // To add new apps:
@@ -72,6 +73,15 @@ AppIcon apps[] = {
 };
 
 int numApps = 10;
+
+const int MENU_CELL_W = 58;
+const int MENU_CELL_H = 62;
+const int MENU_ICON_SIZE = 36;
+const int MENU_SPACING = 4;
+const int MENU_ROW_SPACING = 10;
+const int MENU_COLS = 5;
+const int MENU_START_X = (320 - (MENU_COLS * MENU_CELL_W + (MENU_COLS - 1) * MENU_SPACING)) / 2;
+const int MENU_START_Y = 62;
 
 class MIDICallbacks: public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
@@ -229,36 +239,35 @@ void drawMenu() {
   tft.setTextColor(THEME_TEXT, statusBg);
   tft.drawString(deviceConnected ? "BLE ON" : "WAITING", 246, 17, 2);
   
-  // App grid
-  int cellW = 58;
-  int cellH = 62;
-  int iconSize = 36;
-  int spacing = 4;
-  int rowSpacing = 10;
-  int cols = 5;
-  int startX = (320 - (cols * cellW + (cols - 1) * spacing)) / 2;
-  int startY = 62;
-  
   for (int i = 0; i < numApps; i++) {
-    int col = i % cols;
-    int row = i / cols;
-    int x = startX + col * (cellW + spacing);
-    int y = startY + row * (cellH + rowSpacing);
-    
-    uint16_t iconColor = apps[i].color;
-    
-    tft.fillRoundRect(x, y, cellW, cellH, 6, THEME_PANEL);
-    tft.drawRoundRect(x, y, cellW, cellH, 6, THEME_BORDER);
-    tft.fillRoundRect(x + 11, y + 7, iconSize, iconSize, 6, iconColor);
-    
-    drawAppGraphics(apps[i].mode, x + 11, y + 7, iconSize);
-    
-    tft.setTextColor(THEME_TEXT, THEME_PANEL);
-    tft.drawCentreString(apps[i].name, x + cellW / 2, y + 47, 1);
+    drawMenuCard(i);
   }
 
   tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
   tft.drawCentreString(deviceConnected ? "MIDI ready" : "Open MIDIberry or BLE-MIDI Connect", 160, 220, 2);
+}
+
+void drawMenuCard(int index, bool pressed) {
+  int col = index % MENU_COLS;
+  int row = index / MENU_COLS;
+  int x = MENU_START_X + col * (MENU_CELL_W + MENU_SPACING);
+  int y = MENU_START_Y + row * (MENU_CELL_H + MENU_ROW_SPACING);
+  int yOffset = pressed ? 2 : 0;
+  uint16_t panelColor = pressed ? THEME_SURFACE : THEME_PANEL;
+  uint16_t borderColor = pressed ? apps[index].color : THEME_BORDER;
+  uint16_t iconColor = pressed ? THEME_TEXT : apps[index].color;
+
+  if (!pressed) {
+    tft.fillRoundRect(x + 1, y + 2, MENU_CELL_W, MENU_CELL_H, 6, THEME_BG);
+  }
+  tft.fillRoundRect(x, y + yOffset, MENU_CELL_W, MENU_CELL_H, 6, panelColor);
+  tft.drawRoundRect(x, y + yOffset, MENU_CELL_W, MENU_CELL_H, 6, borderColor);
+  tft.fillRoundRect(x + 11, y + 7 + yOffset, MENU_ICON_SIZE, MENU_ICON_SIZE, 6, iconColor);
+
+  drawAppGraphics(apps[index].mode, x + 11, y + 7 + yOffset, MENU_ICON_SIZE);
+
+  tft.setTextColor(pressed ? THEME_TEXT : THEME_TEXT_DIM, panelColor);
+  tft.drawCentreString(apps[index].name, x + MENU_CELL_W / 2, y + 47 + yOffset, 1);
 }
 
 void drawAppGraphics(AppMode mode, int x, int y, int iconSize) {
@@ -389,21 +398,15 @@ void drawAppGraphics(AppMode mode, int x, int y, int iconSize) {
 }
 
 void handleMenuTouch() {
-  int cellW = 58;
-  int cellH = 62;
-  int spacing = 4;
-  int rowSpacing = 10;
-  int cols = 5;
-  int startX = (320 - (cols * cellW + (cols - 1) * spacing)) / 2;
-  int startY = 62;
-  
   for (int i = 0; i < numApps; i++) {
-    int col = i % cols;
-    int row = i / cols;
-    int x = startX + col * (cellW + spacing);
-    int y = startY + row * (cellH + rowSpacing);
+    int col = i % MENU_COLS;
+    int row = i / MENU_COLS;
+    int x = MENU_START_X + col * (MENU_CELL_W + MENU_SPACING);
+    int y = MENU_START_Y + row * (MENU_CELL_H + MENU_ROW_SPACING);
     
-    if (isButtonPressed(x, y, cellW, cellH)) {
+    if (isButtonPressed(x, y, MENU_CELL_W, MENU_CELL_H)) {
+      drawMenuCard(i, true);
+      delay(70);
       enterMode(apps[i].mode);
       return;
     }

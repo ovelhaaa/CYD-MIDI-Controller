@@ -68,33 +68,41 @@ void drawArpeggiatorMode() {
 void drawArpControls() {
   int y = 55;
   int spacing = 25;
+
+  tft.fillRoundRect(6, 50, 308, 104, 6, THEME_PANEL);
+  tft.drawRoundRect(6, 50, 308, 104, 6, THEME_BORDER);
   
   // Pattern and chord type
-  tft.setTextColor(THEME_TEXT, THEME_BG);
+  tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
   tft.drawString("Pattern:", 10, y + 6, 1);
   drawRoundButton(65, y, 60, 25, patternNames[arp.pattern], THEME_WARNING);
   drawRoundButton(130, y, 25, 25, "<", THEME_SECONDARY);
   drawRoundButton(160, y, 25, 25, ">", THEME_SECONDARY);
   
   // Chord type
+  tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
   tft.drawString("Type:", 200, y + 6, 1);
   drawRoundButton(240, y, 50, 25, chordTypeNames[arp.chordType], THEME_ACCENT);
   
   y += spacing;
   
   // Octaves and Speed
+  tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
   tft.drawString("Octaves:", 10, y + 6, 1);
+  tft.setTextColor(THEME_TEXT, THEME_PANEL);
   tft.drawString(String(arp.octaves), 70, y + 6, 1);
   drawRoundButton(90, y, 25, 25, "-", THEME_SECONDARY);
   drawRoundButton(120, y, 25, 25, "+", THEME_SECONDARY);
   
   // Speed
+  tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
   tft.drawString("Speed:", 160, y + 6, 1);
   String speedText;
   if (arp.speed == 4) speedText = "4th";
   else if (arp.speed == 8) speedText = "8th";
   else if (arp.speed == 16) speedText = "16th";
   else if (arp.speed == 32) speedText = "32nd";
+  tft.setTextColor(THEME_TEXT, THEME_PANEL);
   tft.drawString(speedText, 210, y + 6, 1);
   drawRoundButton(240, y, 25, 25, "+", THEME_SECONDARY);
   drawRoundButton(270, y, 25, 25, "-", THEME_SECONDARY);
@@ -102,7 +110,9 @@ void drawArpControls() {
   y += spacing;
   
   // BPM Control
+  tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
   tft.drawString("BPM:", 10, y + 6, 1);
+  tft.setTextColor(THEME_TEXT, THEME_PANEL);
   tft.drawString(String(arp.bpm), 50, y + 6, 1);
   drawRoundButton(80, y, 25, 25, "-", THEME_SECONDARY);
   drawRoundButton(110, y, 25, 25, "+", THEME_SECONDARY);
@@ -110,14 +120,16 @@ void drawArpControls() {
   y += spacing;
   
   // Piano octave controls
+  tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
   tft.drawString("Piano Oct:", 10, y + 6, 1);
+  tft.setTextColor(THEME_TEXT, THEME_PANEL);
   tft.drawString(String(pianoOctave), 80, y + 6, 1);
   drawRoundButton(100, y, 25, 25, "-", THEME_SECONDARY);
   drawRoundButton(130, y, 25, 25, "+", THEME_SECONDARY);
   
   // Current status
   if (arp.isPlaying && arp.triggeredKey != -1) {
-    tft.setTextColor(THEME_PRIMARY, THEME_BG);
+    tft.setTextColor(THEME_PRIMARY, THEME_PANEL);
     String keyName = getNoteNameFromMIDI(arp.triggeredKey);
     tft.drawString("Arping: " + keyName + " " + chordTypeNames[arp.chordType], 170, y + 6, 1);
   }
@@ -125,10 +137,11 @@ void drawArpControls() {
   y += spacing;
   
   // Current note display
+  tft.fillRoundRect(170, 130, 120, 18, 4, THEME_BG);
   if (arp.currentNote != -1) {
     tft.setTextColor(THEME_ACCENT, THEME_BG);
     String currentNoteName = getNoteNameFromMIDI(arp.currentNote);
-    tft.drawString("♪ " + currentNoteName, 10, y + 6, 2);
+    tft.drawCentreString("NOTE " + currentNoteName, 230, 133, 1);
   }
 }
 
@@ -136,6 +149,9 @@ void drawPianoKeys() {
   int keyY = 160;
   int keyWidth = 320 / NUM_PIANO_KEYS;
   int keyHeight = 45;
+
+  tft.fillRoundRect(4, keyY - 6, 312, keyHeight + 14, 6, THEME_PANEL);
+  tft.drawRoundRect(4, keyY - 6, 312, keyHeight + 14, 6, THEME_BORDER);
   
   for (int i = 0; i < NUM_PIANO_KEYS; i++) {
     int x = i * keyWidth;
@@ -148,12 +164,12 @@ void drawPianoKeys() {
     
     // Black key styling for sharps
     if (noteName.indexOf('#') != -1) {
-      bgColor = isPressed ? THEME_ACCENT : THEME_TEXT;
-      textColor = isPressed ? THEME_BG : THEME_SURFACE;
+      bgColor = isPressed ? THEME_ACCENT : THEME_BG;
+      textColor = isPressed ? THEME_BG : THEME_TEXT_DIM;
     }
     
-    tft.fillRect(x + 1, keyY + 1, keyWidth - 2, keyHeight - 2, bgColor);
-    tft.drawRect(x, keyY, keyWidth, keyHeight, THEME_PRIMARY);
+    tft.fillRoundRect(x + 1, keyY + 1, keyWidth - 2, keyHeight - 2, 4, bgColor);
+    tft.drawRoundRect(x + 1, keyY + 1, keyWidth - 2, keyHeight - 2, 4, isPressed ? THEME_TEXT : THEME_BORDER);
     
     tft.setTextColor(textColor, bgColor);
     tft.drawCentreString(noteName, x + keyWidth/2, keyY + keyHeight/2 - 6, 1);

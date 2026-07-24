@@ -46,12 +46,8 @@ void drawGridPianoMode() {
   tft.fillScreen(THEME_BG);
   drawHeader("GRID PIANO", "4ths Layout");
   
-  // Grid area
-  int cellW = 35;
-  int cellH = 25;
-  int startX = 10;
-  int startY = 55;
-  int spacing = 2;
+  tft.fillRoundRect(6, 50, 308, 146, 6, THEME_PANEL);
+  tft.drawRoundRect(6, 50, 308, 146, 6, THEME_BORDER);
   
   for (int row = 0; row < GRID_ROWS; row++) {
     for (int col = 0; col < GRID_COLS; col++) {
@@ -60,26 +56,31 @@ void drawGridPianoMode() {
   }
   
   // Octave controls
-  drawRoundButton(10, 200, 40, 25, "OCT-", THEME_SECONDARY);
-  drawRoundButton(60, 200, 40, 25, "OCT+", THEME_SECONDARY);
+  drawRoundButton(8, 204, 48, 30, "OCT-", THEME_SECONDARY);
+  drawRoundButton(64, 204, 48, 30, "OCT+", THEME_SECONDARY);
   
   // Octave display
-  tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
-  tft.drawString("Oct " + String(gridOctave), 110, 207, 1);
+  tft.fillRoundRect(126, 204, 60, 30, 5, THEME_PANEL);
+  tft.setTextColor(THEME_TEXT, THEME_PANEL);
+  tft.drawCentreString("Oct " + String(gridOctave), 156, 211, 2);
   
   // Current note display
+  tft.fillRoundRect(198, 204, 114, 30, 5, THEME_PANEL);
   if (gridPressedNote != -1) {
-    tft.setTextColor(THEME_PRIMARY, THEME_BG);
-    tft.drawString("Playing: " + getNoteNameFromMIDI(gridPressedNote), 180, 207, 1);
+    tft.setTextColor(THEME_PRIMARY, THEME_PANEL);
+    tft.drawCentreString(getNoteNameFromMIDI(gridPressedNote), 255, 211, 2);
+  } else {
+    tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
+    tft.drawCentreString("Ready", 255, 211, 2);
   }
 }
 
 void drawGridCell(int row, int col, bool pressed) {
   int cellW = 35;
   int cellH = 25;
-  int startX = 10;
-  int startY = 55;
-  int spacing = 2;
+  int startX = 13;
+  int startY = 60;
+  int spacing = 3;
   
   int x = startX + col * (cellW + spacing);
   int y = startY + row * (cellH + spacing);
@@ -94,15 +95,15 @@ void drawGridCell(int row, int col, bool pressed) {
     bgColor = THEME_PRIMARY;
     textColor = THEME_BG;
   } else if (isBlackKey) {
-    bgColor = THEME_SURFACE;
+    bgColor = THEME_BG;
     textColor = THEME_TEXT_DIM;  // Lighter text for accidentals
   } else {
-    bgColor = THEME_BG;
+    bgColor = THEME_SURFACE;
     textColor = THEME_TEXT;
   }
   
-  tft.fillRect(x, y, cellW, cellH, bgColor);
-  tft.drawRect(x, y, cellW, cellH, THEME_PRIMARY);
+  tft.fillRoundRect(x, y, cellW, cellH, 4, bgColor);
+  tft.drawRoundRect(x, y, cellW, cellH, 4, pressed ? THEME_TEXT : THEME_BORDER);
   
   // Note name
   String noteName = getNoteNameFromMIDI(note);
@@ -119,13 +120,13 @@ void handleGridPianoMode() {
   
   if (touch.justPressed) {
     // Octave controls
-    if (isButtonPressed(10, 200, 40, 25)) {
+    if (isButtonPressed(8, 204, 48, 30)) {
       gridOctave = max(1, gridOctave - 1);
       calculateGridLayout();
       drawGridPianoMode();
       return;
     }
-    if (isButtonPressed(60, 200, 40, 25)) {
+    if (isButtonPressed(64, 204, 48, 30)) {
       gridOctave = min(6, gridOctave + 1);
       calculateGridLayout();
       drawGridPianoMode();
@@ -136,9 +137,9 @@ void handleGridPianoMode() {
   // Grid interaction
   int cellW = 35;
   int cellH = 25;
-  int startX = 10;
-  int startY = 55;
-  int spacing = 2;
+  int startX = 13;
+  int startY = 60;
+  int spacing = 3;
   
   int pressedNote = -1;
   
@@ -182,12 +183,13 @@ void handleGridPianoMode() {
     gridPressedNote = pressedNote;
     
     // Update display
+    tft.fillRoundRect(198, 204, 114, 30, 5, THEME_PANEL);
     if (gridPressedNote != -1) {
-      tft.fillRect(180, 200, 140, 16, THEME_BG);
-      tft.setTextColor(THEME_PRIMARY, THEME_BG);
-      tft.drawString("Playing: " + getNoteNameFromMIDI(gridPressedNote), 180, 207, 1);
+      tft.setTextColor(THEME_PRIMARY, THEME_PANEL);
+      tft.drawCentreString(getNoteNameFromMIDI(gridPressedNote), 255, 211, 2);
     } else {
-      tft.fillRect(180, 200, 140, 16, THEME_BG);
+      tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
+      tft.drawCentreString("Ready", 255, 211, 2);
     }
   }
 }

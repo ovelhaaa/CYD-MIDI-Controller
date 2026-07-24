@@ -57,40 +57,45 @@ void drawAutoChordMode() {
   drawChordKeys();
   
   // Controls
-  drawRoundButton(10, 180, 40, 25, "OCT-", THEME_SECONDARY);
-  drawRoundButton(60, 180, 40, 25, "OCT+", THEME_SECONDARY);
-  drawRoundButton(110, 180, 60, 25, "SCALE", THEME_ACCENT);
-  drawRoundButton(180, 180, 60, 25, "CLEAR", THEME_ERROR);
+  tft.fillRect(0, 176, 320, 64, THEME_BG);
+  drawRoundButton(8, 184, 46, 30, "OCT-", THEME_SECONDARY);
+  drawRoundButton(60, 184, 46, 30, "OCT+", THEME_SECONDARY);
+  drawRoundButton(122, 184, 68, 30, "SCALE", THEME_ACCENT);
+  drawRoundButton(202, 184, 62, 30, "CLEAR", THEME_ERROR);
   
   // Status
-  tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
-  tft.drawString("Oct " + String(chordOctave), 10, 210, 1);
-  tft.drawString("Classic piano chords", 110, 210, 1);
+  tft.fillRoundRect(8, 218, 304, 16, 4, THEME_PANEL);
+  tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
+  tft.drawCentreString("Oct " + String(chordOctave) + "  Classic piano chords", 160, 221, 1);
 }
 
 void drawChordKeys() {
-  int keyWidth = 320 / 8;
-  int keyHeight = 80;
-  int keyY = 80;
+  int keyWidth = 37;
+  int keyHeight = 96;
+  int keyY = 66;
+  int startX = 10;
+  int gap = 2;
   
   uint16_t degreeColors[] = {
     THEME_PRIMARY, THEME_SECONDARY, THEME_ACCENT, THEME_SUCCESS,
     THEME_WARNING, THEME_ERROR, 0xF81F, 0x07E0
   };
+
+  tft.fillRoundRect(6, 58, 308, 112, 6, THEME_PANEL);
+  tft.drawRoundRect(6, 58, 308, 112, 6, THEME_BORDER);
   
   for (int i = 0; i < 8; i++) {
-    int x = i * keyWidth;
+    int x = startX + i * (keyWidth + gap);
     
-    uint16_t bgColor = chordPressed[i] ? degreeColors[i] : THEME_SURFACE;
-    uint16_t textColor = chordPressed[i] ? THEME_BG : degreeColors[i];
+    uint16_t bgColor = chordPressed[i] ? degreeColors[i] : THEME_BG;
+    uint16_t textColor = chordPressed[i] ? THEME_BG : THEME_TEXT;
     
-    tft.fillRect(x + 2, keyY + 2, keyWidth - 4, keyHeight - 4, bgColor);
-    tft.drawRect(x, keyY, keyWidth, keyHeight, degreeColors[i]);
-    tft.drawRect(x + 1, keyY + 1, keyWidth - 2, keyHeight - 2, degreeColors[i]);
+    tft.fillRoundRect(x, keyY, keyWidth, keyHeight, 5, bgColor);
+    tft.drawRoundRect(x, keyY, keyWidth, keyHeight, 5, degreeColors[i]);
     
     // Roman numeral
     tft.setTextColor(textColor, bgColor);
-    tft.drawCentreString(diatonicChords[i].name, x + keyWidth/2, keyY + 20, 4);
+    tft.drawCentreString(diatonicChords[i].name, x + keyWidth/2, keyY + 18, 4);
     
     // Root note name
     int rootNote;
@@ -100,7 +105,8 @@ void drawChordKeys() {
       rootNote = getNoteInScale(chordScale, i, chordOctave);
     }
     String rootName = getNoteNameFromMIDI(rootNote);
-    tft.drawCentreString(rootName, x + keyWidth/2, keyY + 50, 2);
+    tft.setTextColor(chordPressed[i] ? THEME_BG : THEME_TEXT_DIM, bgColor);
+    tft.drawCentreString(rootName, x + keyWidth/2, keyY + 58, 2);
   }
 }
 
@@ -113,38 +119,40 @@ void handleAutoChordMode() {
   
   if (touch.justPressed) {
     // Octave controls
-    if (isButtonPressed(10, 180, 40, 25)) {
+    if (isButtonPressed(8, 184, 46, 30)) {
       chordOctave = max(2, chordOctave - 1);
       drawAutoChordMode();
       return;
     }
-    if (isButtonPressed(60, 180, 40, 25)) {
+    if (isButtonPressed(60, 184, 46, 30)) {
       chordOctave = min(6, chordOctave + 1);
       drawAutoChordMode();
       return;
     }
     
     // Scale selector
-    if (isButtonPressed(110, 180, 60, 25)) {
+    if (isButtonPressed(122, 184, 68, 30)) {
       chordScale = (chordScale + 1) % NUM_SCALES;
       drawAutoChordMode();
       return;
     }
     
     // Clear all
-    if (isButtonPressed(180, 180, 60, 25)) {
+    if (isButtonPressed(202, 184, 62, 30)) {
       stopAllChords();
       drawChordKeys();
       return;
     }
     
     // Chord keys - only handle on initial press
-    int keyWidth = 320 / 8;
-    int keyHeight = 80;
-    int keyY = 80;
+    int keyWidth = 37;
+    int keyHeight = 96;
+    int keyY = 66;
+    int startX = 10;
+    int gap = 2;
     
     for (int i = 0; i < 8; i++) {
-      int x = i * keyWidth;
+      int x = startX + i * (keyWidth + gap);
       if (isButtonPressed(x, keyY, keyWidth, keyHeight)) {
         if (!chordPressed[i]) {
           // Turn on chord
@@ -159,15 +167,17 @@ void handleAutoChordMode() {
   
   // Handle single key press/hold functionality
   if (touch.isPressed) {
-    int keyWidth = 320 / 8;
-    int keyHeight = 80;
-    int keyY = 80;
+    int keyWidth = 37;
+    int keyHeight = 96;
+    int keyY = 66;
+    int startX = 10;
+    int gap = 2;
     
     int currentKey = -1;
     
     // Find which key is being pressed
     for (int i = 0; i < 8; i++) {
-      int x = i * keyWidth;
+      int x = startX + i * (keyWidth + gap);
       if (touch.x >= x && touch.x < x + keyWidth && 
           touch.y >= keyY && touch.y < keyY + keyHeight) {
         currentKey = i;

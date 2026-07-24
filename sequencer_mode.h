@@ -8,6 +8,12 @@
 // Sequencer mode variables
 #define SEQ_STEPS 16
 #define SEQ_TRACKS 4
+#define SEQ_GRID_X 46
+#define SEQ_GRID_Y 54
+#define SEQ_CELL_W 15
+#define SEQ_CELL_H 28
+#define SEQ_CELL_GAP 1
+#define SEQ_ROW_GAP 4
 bool sequencePattern[SEQ_TRACKS][SEQ_STEPS];
 int currentStep = 0;
 unsigned long lastStepTime = 0;
@@ -47,38 +53,37 @@ void drawSequencerMode() {
   drawSequencerGrid();
   
   // Transport controls - positioned to avoid overlap
-  drawRoundButton(10, 200, 50, 25, sequencerPlaying ? "STOP" : "PLAY", 
+  tft.fillRect(0, 194, 320, 46, THEME_BG);
+  drawRoundButton(8, 202, 56, 30, sequencerPlaying ? "STOP" : "PLAY", 
                  sequencerPlaying ? THEME_ERROR : THEME_SUCCESS);
-  drawRoundButton(70, 200, 50, 25, "CLEAR", THEME_WARNING);
-  drawRoundButton(130, 200, 40, 25, "BPM-", THEME_SECONDARY);
-  drawRoundButton(180, 200, 40, 25, "BPM+", THEME_SECONDARY);
+  drawRoundButton(72, 202, 60, 30, "CLEAR", THEME_WARNING);
+  drawRoundButton(148, 202, 46, 30, "BPM-", THEME_SECONDARY);
+  drawRoundButton(202, 202, 46, 30, "BPM+", THEME_SECONDARY);
   
   // BPM display
-  tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
-  tft.drawString(String(bpm), 240, 207, 2);
+  tft.fillRoundRect(260, 202, 52, 30, 5, THEME_PANEL);
+  tft.setTextColor(THEME_TEXT, THEME_PANEL);
+  tft.drawCentreString(String(bpm), 286, 209, 2);
 }
 
 void drawSequencerGrid() {
-  int gridX = 10;
-  int gridY = 50;
-  int cellW = 15;
-  int cellH = 28;
-  int spacing = 1;
-  
   // 808-style track labels and colors
   String trackLabels[] = {"KICK", "SNRE", "HHAT", "OPEN"};
   uint16_t trackColors[] = {THEME_ERROR, THEME_WARNING, THEME_PRIMARY, THEME_ACCENT};
+
+  tft.fillRoundRect(6, 48, 308, 140, 6, THEME_PANEL);
+  tft.drawRoundRect(6, 48, 308, 140, 6, THEME_BORDER);
   
   for (int track = 0; track < SEQ_TRACKS; track++) {
-    int y = gridY + track * (cellH + spacing + 3);
+    int y = SEQ_GRID_Y + track * (SEQ_CELL_H + SEQ_ROW_GAP);
     
     // Track name with color coding
-    tft.setTextColor(trackColors[track], THEME_BG);
-    tft.drawString(trackLabels[track], gridX, y + 12, 1);
+    tft.setTextColor(trackColors[track], THEME_PANEL);
+    tft.drawString(trackLabels[track], 12, y + 10, 1);
     
     // Steps - 16 steps in 808 style
     for (int step = 0; step < SEQ_STEPS; step++) {
-      int x = gridX + 35 + step * (cellW + spacing);
+      int x = SEQ_GRID_X + step * (SEQ_CELL_W + SEQ_CELL_GAP);
       
       bool active = sequencePattern[track][step];
       bool current = (sequencerPlaying && step == currentStep);
@@ -87,15 +92,15 @@ void drawSequencerGrid() {
       if (current && active) color = THEME_TEXT;
       else if (current) color = trackColors[track];
       else if (active) color = trackColors[track];
-      else color = THEME_SURFACE;
+      else color = (step % 4 == 0) ? THEME_SURFACE : THEME_BG;
       
       // Highlight every 4th step (like 808)
       if (step % 4 == 0) {
-        tft.drawRect(x-1, y-1, cellW+2, cellH+2, THEME_TEXT_DIM);
+        tft.drawRect(x - 1, y - 1, SEQ_CELL_W + 2, SEQ_CELL_H + 2, THEME_TEXT_DIM);
       }
       
-      tft.fillRect(x, y, cellW, cellH, color);
-      tft.drawRect(x, y, cellW, cellH, THEME_TEXT_DIM);
+      tft.fillRoundRect(x, y, SEQ_CELL_W, SEQ_CELL_H, 3, color);
+      tft.drawRoundRect(x, y, SEQ_CELL_W, SEQ_CELL_H, 3, active ? trackColors[track] : THEME_BORDER);
     }
   }
 }
@@ -118,7 +123,7 @@ void handleSequencerMode() {
   // Handle touch input
   if (touch.justPressed) {
     // Transport controls
-    if (isButtonPressed(10, 200, 50, 25)) {
+    if (isButtonPressed(8, 202, 56, 30)) {
       sequencerPlaying = !sequencerPlaying;
       if (sequencerPlaying) {
         currentStep = 0;
@@ -128,7 +133,7 @@ void handleSequencerMode() {
       return;
     }
     
-    if (isButtonPressed(70, 200, 50, 25)) {
+    if (isButtonPressed(72, 202, 60, 30)) {
       // Clear all patterns
       for (int t = 0; t < SEQ_TRACKS; t++) {
         for (int s = 0; s < SEQ_STEPS; s++) {
@@ -139,14 +144,14 @@ void handleSequencerMode() {
       return;
     }
     
-    if (isButtonPressed(130, 200, 40, 25)) {
+    if (isButtonPressed(148, 202, 46, 30)) {
       bpm = max(60, bpm - 1);
       stepInterval = 60000 / bpm / 4;
       drawSequencerMode();
       return;
     }
     
-    if (isButtonPressed(180, 200, 40, 25)) {
+    if (isButtonPressed(202, 202, 46, 30)) {
       bpm = min(200, bpm + 1);
       stepInterval = 60000 / bpm / 4;
       drawSequencerMode();
@@ -154,18 +159,12 @@ void handleSequencerMode() {
     }
     
     // Grid interaction
-    int gridX = 45;
-    int gridY = 50;
-    int cellW = 15;
-    int cellH = 28;
-    int spacing = 1;
-    
     for (int track = 0; track < SEQ_TRACKS; track++) {
       for (int step = 0; step < SEQ_STEPS; step++) {
-        int x = gridX + step * (cellW + spacing);
-        int y = gridY + track * (cellH + spacing + 3);
+        int x = SEQ_GRID_X + step * (SEQ_CELL_W + SEQ_CELL_GAP);
+        int y = SEQ_GRID_Y + track * (SEQ_CELL_H + SEQ_ROW_GAP);
         
-        if (isButtonPressed(x, y, cellW, cellH)) {
+        if (isButtonPressed(x, y, SEQ_CELL_W, SEQ_CELL_H)) {
           toggleSequencerStep(track, step);
           drawSequencerGrid();
           return;

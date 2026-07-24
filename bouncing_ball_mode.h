@@ -60,21 +60,24 @@ void initializeBouncingBallMode() {
 void drawBouncingBallMode() {
   tft.fillScreen(THEME_BG);
   drawHeader("ZEN", "Ambient Bouncing");
+
+  tft.fillRoundRect(44, 54, 238, 132, 6, THEME_PANEL);
+  tft.drawRoundRect(44, 54, 238, 132, 6, THEME_BORDER);
   
   // Controls
-  drawRoundButton(10, 200, 40, 25, "ADD", THEME_SUCCESS);
-  drawRoundButton(60, 200, 40, 25, "RESET", THEME_WARNING);
-  drawRoundButton(110, 200, 50, 25, "SCALE", THEME_ACCENT);
-  drawRoundButton(170, 200, 40, 25, "KEY-", THEME_SECONDARY);
-  drawRoundButton(220, 200, 40, 25, "KEY+", THEME_SECONDARY);
-  drawRoundButton(270, 200, 40, 25, "OCT", THEME_PRIMARY);
+  drawRoundButton(8, 202, 44, 30, "ADD", THEME_SUCCESS);
+  drawRoundButton(58, 202, 54, 30, "RESET", THEME_WARNING);
+  drawRoundButton(120, 202, 58, 30, "SCALE", THEME_ACCENT);
+  drawRoundButton(186, 202, 42, 30, "KEY-", THEME_SECONDARY);
+  drawRoundButton(234, 202, 42, 30, "KEY+", THEME_SECONDARY);
+  drawRoundButton(282, 202, 30, 30, "O", THEME_PRIMARY);
   
   // Status display
-  tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
   String keyName = getNoteNameFromMIDI(ballKey);
-  tft.drawString(keyName + " " + scales[ballScale].name, 10, 180, 1);
-  tft.drawString("Oct:" + String(ballOctave), 200, 180, 1);
-  tft.drawString("Balls:" + String(numActiveBalls), 270, 180, 1);
+  tft.fillRoundRect(8, 188, 304, 12, 3, THEME_PANEL);
+  tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
+  tft.drawCentreString(keyName + " " + scales[ballScale].name + "  Oct " + String(ballOctave) +
+                       "  Balls " + String(numActiveBalls), 160, 190, 1);
   
   drawWalls();
   drawBalls();
@@ -165,7 +168,7 @@ void handleBouncingBallMode() {
   
   if (touch.justPressed) {
     // Add ball button
-    if (isButtonPressed(10, 200, 40, 25)) {
+    if (isButtonPressed(8, 202, 44, 30)) {
       if (numActiveBalls < MAX_BALLS) {
         numActiveBalls++;
         initializeBalls();
@@ -175,7 +178,7 @@ void handleBouncingBallMode() {
     }
     
     // Reset button
-    if (isButtonPressed(60, 200, 40, 25)) {
+    if (isButtonPressed(58, 202, 54, 30)) {
       numActiveBalls = 1;
       initializeBalls();
       drawBouncingBallMode();
@@ -183,7 +186,7 @@ void handleBouncingBallMode() {
     }
     
     // Scale button
-    if (isButtonPressed(110, 200, 50, 25)) {
+    if (isButtonPressed(120, 202, 58, 30)) {
       ballScale = (ballScale + 1) % NUM_SCALES;
       initializeWalls();
       drawBouncingBallMode();
@@ -191,14 +194,14 @@ void handleBouncingBallMode() {
     }
     
     // Key controls
-    if (isButtonPressed(170, 200, 40, 25)) {
+    if (isButtonPressed(186, 202, 42, 30)) {
       ballKey = (ballKey - 1 + 12) % 12;
       initializeWalls();
       drawBouncingBallMode();
       return;
     }
     
-    if (isButtonPressed(220, 200, 40, 25)) {
+    if (isButtonPressed(234, 202, 42, 30)) {
       ballKey = (ballKey + 1) % 12;
       initializeWalls();
       drawBouncingBallMode();
@@ -206,7 +209,7 @@ void handleBouncingBallMode() {
     }
     
     // Octave button
-    if (isButtonPressed(270, 200, 40, 25)) {
+    if (isButtonPressed(282, 202, 30, 30)) {
       ballOctave = (ballOctave == 7) ? 2 : ballOctave + 1;
       initializeWalls();
       drawBouncingBallMode();
@@ -223,7 +226,7 @@ void updateBouncingBall() {
   static unsigned long lastUpdate = 0;
   if (millis() - lastUpdate > 16) {
     // Clear entire play area to prevent flickering
-    tft.fillRect(53, 63, 219, 114, THEME_BG);
+    tft.fillRect(53, 63, 219, 114, THEME_PANEL);
     
     updateBalls();
     checkWallCollisions();

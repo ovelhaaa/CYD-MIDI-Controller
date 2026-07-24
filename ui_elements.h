@@ -68,11 +68,14 @@ void drawRoundButton(int x, int y, int w, int h, String text, uint16_t color, bo
   uint16_t borderColor = color;
   uint16_t textColor = pressed ? THEME_BG : THEME_TEXT;
   
-  tft.fillRoundRect(x, y, w, h, 6, bgColor);
-  tft.drawRoundRect(x, y, w, h, 6, borderColor);
+  if (!pressed) {
+    tft.fillRoundRect(x + 1, y + 2, w, h, 6, THEME_BG);
+  }
+  tft.fillRoundRect(x, y + (pressed ? 1 : 0), w, h, 6, bgColor);
+  tft.drawRoundRect(x, y + (pressed ? 1 : 0), w, h, 6, borderColor);
   
   tft.setTextColor(textColor, bgColor);
-  tft.drawCentreString(text, x + w/2, y + h/2 - 7, 2);
+  tft.drawCentreString(text, x + w/2, y + h/2 - 7 + (pressed ? 1 : 0), 2);
 }
 
 void drawHeader(String title, String subtitle) {
@@ -88,6 +91,10 @@ void drawHeader(String title, String subtitle) {
   }
   
   drawRoundButton(8, 8, 46, 26, "BACK", THEME_ERROR);
+
+  uint16_t statusColor = deviceConnected ? THEME_SUCCESS : THEME_ERROR;
+  tft.fillCircle(304, 14, 5, statusColor);
+  tft.drawCircle(304, 14, 6, THEME_BORDER);
 }
 
 void updateStatus() {

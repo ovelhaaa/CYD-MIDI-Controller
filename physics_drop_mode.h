@@ -77,21 +77,24 @@ void initializePhysicsDropMode() {
 void drawPhysicsDropMode() {
   tft.fillScreen(THEME_BG);
   drawHeader("DROP", platformMode ? "Platform Edit" : "Tap to Drop");
+
+  tft.fillRoundRect(6, 50, 308, 134, 6, THEME_PANEL);
+  tft.drawRoundRect(6, 50, 308, 134, 6, THEME_BORDER);
   
   // Controls
-  drawRoundButton(10, 200, 40, 25, platformMode ? "DROP" : "EDIT", THEME_WARNING);
-  drawRoundButton(60, 200, 40, 25, "CLEAR", THEME_ERROR);
-  drawRoundButton(110, 200, 50, 25, "SCALE", THEME_ACCENT);
-  drawRoundButton(170, 200, 40, 25, "KEY-", THEME_SECONDARY);
-  drawRoundButton(220, 200, 40, 25, "KEY+", THEME_SECONDARY);
-  drawRoundButton(270, 200, 40, 25, "OCT", THEME_PRIMARY);
+  drawRoundButton(8, 202, 48, 30, platformMode ? "DROP" : "EDIT", THEME_WARNING);
+  drawRoundButton(62, 202, 58, 30, "CLEAR", THEME_ERROR);
+  drawRoundButton(128, 202, 58, 30, "SCALE", THEME_ACCENT);
+  drawRoundButton(194, 202, 42, 30, "KEY-", THEME_SECONDARY);
+  drawRoundButton(242, 202, 42, 30, "KEY+", THEME_SECONDARY);
+  drawRoundButton(290, 202, 22, 30, "O", THEME_PRIMARY);
   
   // Status display
-  tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
   String keyName = getNoteNameFromMIDI(dropKey);
-  tft.drawString(keyName + " " + scales[dropScale].name, 10, 180, 1);
-  tft.drawString("Oct:" + String(dropOctave), 150, 180, 1);
-  tft.drawString("Balls:" + String(numActiveDropBalls), 220, 180, 1);
+  tft.fillRoundRect(8, 187, 304, 12, 3, THEME_PANEL);
+  tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
+  tft.drawCentreString(keyName + " " + scales[dropScale].name + "  Oct " + String(dropOctave) +
+                       "  Balls " + String(numActiveDropBalls), 160, 189, 1);
   
   drawPlatforms();
   drawDropBalls();
@@ -130,7 +133,7 @@ void drawPlatforms() {
     
     // Draw angled rectangle (simplified as normal rectangle for now)
     tft.fillRect(platforms[i].x, platforms[i].y, platforms[i].w, platforms[i].h, color);
-    tft.drawRect(platforms[i].x, platforms[i].y, platforms[i].w, platforms[i].h, THEME_TEXT);
+    tft.drawRect(platforms[i].x, platforms[i].y, platforms[i].w, platforms[i].h, THEME_BORDER);
     
     // Show note name
     tft.setTextColor(THEME_BG, color);
@@ -149,14 +152,14 @@ void handlePhysicsDropMode() {
   
   if (touch.justPressed) {
     // Mode toggle
-    if (isButtonPressed(10, 200, 40, 25)) {
+    if (isButtonPressed(8, 202, 48, 30)) {
       platformMode = !platformMode;
       drawPhysicsDropMode();
       return;
     }
     
     // Clear button
-    if (isButtonPressed(60, 200, 40, 25)) {
+    if (isButtonPressed(62, 202, 58, 30)) {
       for (int i = 0; i < MAX_DROP_BALLS; i++) {
         dropBalls[i].active = false;
       }
@@ -167,34 +170,34 @@ void handlePhysicsDropMode() {
     }
     
     // Scale button
-    if (isButtonPressed(110, 200, 50, 25)) {
+    if (isButtonPressed(128, 202, 58, 30)) {
       dropScale = (dropScale + 1) % NUM_SCALES;
       drawPhysicsDropMode();
       return;
     }
     
     // Key controls
-    if (isButtonPressed(170, 200, 40, 25)) {
+    if (isButtonPressed(194, 202, 42, 30)) {
       dropKey = (dropKey - 1 + 12) % 12;
       drawPhysicsDropMode();
       return;
     }
     
-    if (isButtonPressed(220, 200, 40, 25)) {
+    if (isButtonPressed(242, 202, 42, 30)) {
       dropKey = (dropKey + 1) % 12;
       drawPhysicsDropMode();
       return;
     }
     
     // Octave button
-    if (isButtonPressed(270, 200, 40, 25)) {
+    if (isButtonPressed(290, 202, 22, 30)) {
       dropOctave = (dropOctave == 7) ? 2 : dropOctave + 1;
       drawPhysicsDropMode();
       return;
     }
     
     // Touch in play area
-    if (touch.y >= 60 && touch.y <= 175) {
+    if (touch.y >= 54 && touch.y <= 180) {
       if (platformMode) {
         // Add platform
         addPlatform(touch.x, touch.y);
@@ -269,7 +272,7 @@ void updatePhysics() {
   // Clear previous ball positions only
   for (int i = 0; i < MAX_DROP_BALLS; i++) {
     if (dropBalls[i].active) {
-      tft.fillCircle(lastX[i], lastY[i], dropBalls[i].size + 1, THEME_BG);
+      tft.fillCircle(lastX[i], lastY[i], dropBalls[i].size + 1, THEME_PANEL);
     }
   }
   

@@ -53,76 +53,83 @@ void drawLFOMode() {
 }
 
 void drawLFOControls() {
-  int y = 55;
-  int spacing = 30;
+  int y = 54;
+  int spacing = 36;
+
+  tft.fillRoundRect(6, 50, 308, 118, 6, THEME_PANEL);
+  tft.drawRoundRect(6, 50, 308, 118, 6, THEME_BORDER);
   
   // Play/Stop and Rate
-  drawRoundButton(10, y, 60, 25, lfo.isRunning ? "STOP" : "START", 
+  drawRoundButton(14, y + 2, 62, 30, lfo.isRunning ? "STOP" : "START", 
                  lfo.isRunning ? THEME_ERROR : THEME_SUCCESS);
   
-  tft.setTextColor(THEME_TEXT, THEME_BG);
-  tft.drawString("Rate:", 80, y + 6, 1);
-  tft.drawString(String(lfo.rate, 1) + "Hz", 115, y + 6, 1);
-  drawRoundButton(160, y, 25, 25, "-", THEME_SECONDARY);
-  drawRoundButton(190, y, 25, 25, "+", THEME_SECONDARY);
+  tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
+  tft.drawString("RATE", 88, y + 4, 1);
+  tft.setTextColor(THEME_TEXT, THEME_PANEL);
+  tft.drawString(String(lfo.rate, 1) + "Hz", 88, y + 16, 2);
+  drawRoundButton(156, y + 2, 30, 30, "-", THEME_SECONDARY);
+  drawRoundButton(192, y + 2, 30, 30, "+", THEME_SECONDARY);
   
   // Waveform selector
-  drawRoundButton(230, y, 60, 25, waveNames[lfo.waveform], THEME_ACCENT);
+  drawRoundButton(238, y + 2, 66, 30, waveNames[lfo.waveform], THEME_ACCENT);
   
   y += spacing;
   
   // Amount
-  tft.drawString("Amount:", 10, y + 6, 1);
-  tft.drawString(String(lfo.amount), 60, y + 6, 1);
-  drawRoundButton(85, y, 25, 25, "-", THEME_SECONDARY);
-  drawRoundButton(115, y, 25, 25, "+", THEME_SECONDARY);
+  tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
+  tft.drawString("AMT", 16, y + 4, 1);
+  tft.setTextColor(THEME_TEXT, THEME_PANEL);
+  tft.drawString(String(lfo.amount), 16, y + 16, 2);
+  drawRoundButton(62, y + 2, 30, 30, "-", THEME_SECONDARY);
+  drawRoundButton(98, y + 2, 30, 30, "+", THEME_SECONDARY);
   
   // Amount bar
-  int barW = 100;
-  int barX = 150;
-  tft.drawRect(barX, y + 8, barW, 10, THEME_TEXT_DIM);
+  int barW = 160;
+  int barX = 144;
+  tft.drawRoundRect(barX, y + 11, barW, 12, 3, THEME_BORDER);
   int fillW = (barW * lfo.amount) / 127;
-  tft.fillRect(barX + 1, y + 9, fillW, 8, THEME_PRIMARY);
+  tft.fillRoundRect(barX + 1, y + 12, max(1, fillW - 2), 10, 2, THEME_PRIMARY);
   
   y += spacing;
   
   // Target selection
-  tft.drawString("Target:", 10, y + 6, 1);
+  tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
+  tft.drawString("TARGET", 16, y + 4, 1);
   if (lfo.pitchWheelMode) {
-    tft.drawString("PITCH", 60, y + 6, 1);
+    tft.setTextColor(THEME_TEXT, THEME_PANEL);
+    tft.drawString("PITCH", 16, y + 16, 2);
   } else {
-    tft.drawString("CC" + String(lfo.ccTarget), 60, y + 6, 1);
+    tft.setTextColor(THEME_TEXT, THEME_PANEL);
+    tft.drawString("CC" + String(lfo.ccTarget), 16, y + 16, 2);
   }
   
-  drawRoundButton(110, y, 25, 25, "-", THEME_SECONDARY);
-  drawRoundButton(140, y, 25, 25, "+", THEME_SECONDARY);
-  drawRoundButton(180, y, 70, 25, "PITCH", lfo.pitchWheelMode ? THEME_PRIMARY : THEME_WARNING);
-  
-  y += spacing;
+  drawRoundButton(90, y + 2, 30, 30, "-", THEME_SECONDARY);
+  drawRoundButton(126, y + 2, 30, 30, "+", THEME_SECONDARY);
+  drawRoundButton(174, y + 2, 76, 30, "PITCH", lfo.pitchWheelMode ? THEME_PRIMARY : THEME_WARNING);
   
   // Current value display
-  tft.setTextColor(THEME_PRIMARY, THEME_BG);
-  tft.drawString("Value: ", 10, y, 1);
+  tft.fillRoundRect(260, y + 2, 44, 30, 5, THEME_BG);
   tft.setTextColor(THEME_ACCENT, THEME_BG);
-  tft.drawString(String(lfo.lastValue), 60, y, 2);
+  tft.drawCentreString(String(lfo.lastValue), 282, y + 9, 2);
   
   // Status indicator
   if (lfo.isRunning) {
-    tft.fillCircle(250, y + 8, 8, THEME_SUCCESS);
-    tft.drawCircle(250, y + 8, 8, THEME_TEXT);
+    tft.fillCircle(258, y + 17, 4, THEME_SUCCESS);
   } else {
-    tft.drawCircle(250, y + 8, 8, THEME_TEXT_DIM);
+    tft.drawCircle(258, y + 17, 4, THEME_TEXT_DIM);
   }
 }
 
 void drawWaveform() {
   // Draw a mini waveform visualization
   int waveX = 10;
-  int waveY = 180;
-  int waveW = 200;
-  int waveH = 30;
+  int waveY = 178;
+  int waveW = 300;
+  int waveH = 48;
   
-  tft.drawRect(waveX, waveY, waveW, waveH, THEME_TEXT_DIM);
+  tft.fillRoundRect(waveX, waveY, waveW, waveH, 6, THEME_PANEL);
+  tft.drawRoundRect(waveX, waveY, waveW, waveH, 6, THEME_BORDER);
+  tft.drawFastHLine(waveX + 8, waveY + waveH / 2, waveW - 16, THEME_TEXT_DIM);
   
   // Draw waveform based on type
   for (int x = 0; x < waveW - 2; x++) {
@@ -144,7 +151,7 @@ void drawWaveform() {
         break;
     }
     
-    int y = waveY + waveH/2 - (value * waveH/4);
+    int y = waveY + waveH/2 - (value * waveH/3);
     tft.drawPixel(waveX + 1 + x, y, THEME_PRIMARY);
   }
   
@@ -164,7 +171,7 @@ void handleLFOMode() {
     int spacing = 30;
     
     // Start/Stop
-    if (isButtonPressed(10, y, 60, 25)) {
+    if (isButtonPressed(14, y + 2, 62, 30)) {
       lfo.isRunning = !lfo.isRunning;
       if (lfo.isRunning) {
         lfo.phase = 0.0;
@@ -175,19 +182,19 @@ void handleLFOMode() {
     }
     
     // Rate controls
-    if (isButtonPressed(160, y, 25, 25)) {
+    if (isButtonPressed(156, y + 2, 30, 30)) {
       lfo.rate = max(0.1, lfo.rate - 0.1);
       drawLFOControls();
       return;
     }
-    if (isButtonPressed(190, y, 25, 25)) {
+    if (isButtonPressed(192, y + 2, 30, 30)) {
       lfo.rate = min(10.0, lfo.rate + 0.1);
       drawLFOControls();
       return;
     }
     
     // Waveform selector
-    if (isButtonPressed(230, y, 60, 25)) {
+    if (isButtonPressed(238, y + 2, 66, 30)) {
       lfo.waveform = (lfo.waveform + 1) % 4;
       drawLFOMode();
       return;
@@ -196,12 +203,12 @@ void handleLFOMode() {
     y += spacing;
     
     // Amount controls
-    if (isButtonPressed(85, y, 25, 25)) {
+    if (isButtonPressed(62, y + 2, 30, 30)) {
       lfo.amount = max(0, lfo.amount - 5);
       drawLFOControls();
       return;
     }
-    if (isButtonPressed(115, y, 25, 25)) {
+    if (isButtonPressed(98, y + 2, 30, 30)) {
       lfo.amount = min(127, lfo.amount + 5);
       drawLFOControls();
       return;
@@ -210,7 +217,7 @@ void handleLFOMode() {
     y += spacing;
     
     // Target controls
-    if (isButtonPressed(110, y, 25, 25)) {
+    if (isButtonPressed(90, y + 2, 30, 30)) {
       if (lfo.pitchWheelMode) {
         lfo.pitchWheelMode = false;
         lfo.ccTarget = 1; // Back to modulation wheel
@@ -220,7 +227,7 @@ void handleLFOMode() {
       drawLFOMode();
       return;
     }
-    if (isButtonPressed(140, y, 25, 25)) {
+    if (isButtonPressed(126, y + 2, 30, 30)) {
       if (!lfo.pitchWheelMode) {
         lfo.ccTarget = min(127, lfo.ccTarget + 1);
       }
@@ -229,7 +236,7 @@ void handleLFOMode() {
     }
     
     // Pitchwheel mode toggle
-    if (isButtonPressed(180, y, 70, 25)) {
+    if (isButtonPressed(174, y + 2, 76, 30)) {
       lfo.pitchWheelMode = !lfo.pitchWheelMode;
       drawLFOMode();
       return;
