@@ -25,7 +25,7 @@
 #define CYD_TOUCH_MISO 39
 #define CYD_TOUCH_CLK 25
 #define CYD_TOUCH_CS 33
-#define CYD_TOUCH_Z_THRESHOLD 400
+#define CYD_TOUCH_Z_THRESHOLD 150
 
 // Touch handling
 struct TouchState {
@@ -34,6 +34,7 @@ struct TouchState {
   bool justPressed = false;
   bool justReleased = false;
   int x = 0, y = 0;
+  int rawX = 0, rawY = 0, rawZ = 0;
 };
 
 // App modes

@@ -58,26 +58,27 @@ void cydTouchBegin() {
 }
 
 bool cydTouchRead(CYDTouchPoint &point) {
-  int16_t data[6] = {};
+  int16_t x[3] = {};
+  int16_t y[3] = {};
 
   digitalWrite(CYD_TOUCH_CS, LOW);
   touchDelay();
 
-  transfer16(CMD_Z1);
-  int16_t z1 = transfer16(CMD_Z2) >> 3;
-  int16_t z2 = transfer16(CMD_X) >> 3;
+  int16_t z1 = transfer16(CMD_Z1) >> 3;
+  int16_t z2 = transfer16(CMD_Z2) >> 3;
   int16_t z = z1 + 4095 - z2;
 
   if (z >= CYD_TOUCH_Z_THRESHOLD) {
     transfer16(CMD_X);
-    data[0] = transfer16(CMD_Y) >> 3;
-    data[1] = transfer16(CMD_X) >> 3;
-    data[2] = transfer16(CMD_Y) >> 3;
-    data[3] = transfer16(CMD_X) >> 3;
+    x[0] = transfer16(CMD_X) >> 3;
+    y[0] = transfer16(CMD_Y) >> 3;
+    x[1] = transfer16(CMD_X) >> 3;
+    y[1] = transfer16(CMD_Y) >> 3;
+    x[2] = transfer16(CMD_X) >> 3;
+    y[2] = transfer16(CMD_Y) >> 3;
   }
 
-  data[4] = transfer16(0xD0) >> 3;
-  data[5] = transfer16(0x00) >> 3;
+  transfer16(0x00);
 
   digitalWrite(CYD_TOUCH_CS, HIGH);
 
@@ -86,8 +87,8 @@ bool cydTouchRead(CYDTouchPoint &point) {
     return false;
   }
 
-  point.x = bestTwoAverage(data[0], data[2], data[4]);
-  point.y = bestTwoAverage(data[1], data[3], data[5]);
+  point.x = bestTwoAverage(x[0], x[1], x[2]);
+  point.y = bestTwoAverage(y[0], y[1], y[2]);
   point.z = z;
   return true;
 }

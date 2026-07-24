@@ -15,6 +15,8 @@ void exitToMenu();
 // UI implementations
 void updateTouch() {
   CYDTouchPoint p;
+  static uint32_t lastTouchLogMs = 0;
+  static uint32_t lastIdleDrawMs = 0;
 
   touch.wasPressed = touch.isPressed;
   touch.isPressed = cydTouchRead(p);
@@ -24,6 +26,23 @@ void updateTouch() {
   if (touch.isPressed) {
     touch.x = constrain(map(p.x, 240, 3800, 0, 320), 0, 319);
     touch.y = constrain(map(p.y, 3700, 200, 0, 240), 0, 239);
+    touch.rawX = p.x;
+    touch.rawY = p.y;
+    touch.rawZ = p.z;
+
+    if (currentMode == MENU && millis() - lastTouchLogMs > 120) {
+      tft.fillRect(0, 224, 190, 16, THEME_BG);
+      tft.setTextColor(THEME_SUCCESS, THEME_BG);
+      tft.drawString("T:" + String(touch.x) + "," + String(touch.y) + " z" + String(touch.rawZ), 4, 226, 1);
+      tft.fillCircle(touch.x, touch.y, 3, THEME_SUCCESS);
+      Serial.printf("touch raw x=%d y=%d z=%d mapped x=%d y=%d\n", touch.rawX, touch.rawY, touch.rawZ, touch.x, touch.y);
+      lastTouchLogMs = millis();
+    }
+  } else if (currentMode == MENU && millis() - lastIdleDrawMs > 1000) {
+    tft.fillRect(0, 224, 190, 16, THEME_BG);
+    tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
+    tft.drawString("T:--", 4, 226, 1);
+    lastIdleDrawMs = millis();
   }
 }
 

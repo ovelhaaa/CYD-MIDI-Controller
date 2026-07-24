@@ -76,6 +76,7 @@ int numApps = 10;
 class MIDICallbacks: public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
       deviceConnected = true;
+      Serial.println("BLE client connected");
       if (currentMode == MENU) {
         drawMenu(); // Redraw menu to clear "BLE WAITING..."
       }
@@ -83,6 +84,7 @@ class MIDICallbacks: public BLEServerCallbacks {
     }
     void onDisconnect(BLEServer* pServer) {
       deviceConnected = false;
+      Serial.println("BLE client disconnected");
       if (currentMode == MENU) {
         drawMenu(); // Redraw menu to show "BLE WAITING..."
       }
@@ -110,7 +112,8 @@ void setup() {
   
   // BLE MIDI Setup
   Serial.println("Initializing BLE MIDI...");
-  BLEDevice::init("CYD MIDI");
+  BLEDevice::init("CYD-MIDI");
+  BLEDevice::setPower(ESP_PWR_LVL_P9);
   Serial.println("BLE Device initialized");
   
   BLEServer *server = BLEDevice::createServer();
@@ -134,14 +137,17 @@ void setup() {
   BLEAdvertising *advertising = server->getAdvertising();
   advertising->addServiceUUID(service->getUUID());
   BLEAdvertisementData adData;
-  adData.setName("CYD MIDI");
+  adData.setFlags(ESP_BLE_ADV_FLAG_GEN_DISC | ESP_BLE_ADV_FLAG_BREDR_NOT_SPT);
   adData.setCompleteServices(BLEUUID(SERVICE_UUID));
   advertising->setAdvertisementData(adData);
+  BLEAdvertisementData scanData;
+  scanData.setName("CYD-MIDI");
+  advertising->setScanResponseData(scanData);
   advertising->setScanResponse(true);
   advertising->setMinPreferred(0x06);
   advertising->setMaxPreferred(0x12);
   advertising->start();
-  Serial.println("BLE Advertising started - Device discoverable as 'CYD MIDI'");
+  Serial.println("BLE Advertising started - Device discoverable as 'CYD-MIDI'");
   
   // Initialize mode systems
   initializeKeyboardMode();
