@@ -31,7 +31,40 @@ Special thanks to Brian Lough for putting together the resources on this board. 
 - **ESP32-2432S028R (CYD)** - ~$15 from AliExpress/Amazon
 - Arduino IDE with ESP32 support
 
-## Installation
+## PlatformIO Build
+
+This project includes a PlatformIO environment for CYD boards that expose both
+USB-C and Micro USB connectors:
+
+```bash
+pio run -e cyd-dual-usb
+```
+
+To upload, connect the board and run:
+
+```bash
+pio run -e cyd-dual-usb -t upload
+```
+
+The `cyd-usb-c` and `cyd-micro-usb` environments are kept as aliases and build
+the same firmware, because the connector type does not change the ESP32 target.
+This setup follows the dual-USB CYD configuration used by
+[`ovelhaaa/beatCYDa`](https://github.com/ovelhaaa/beatCYDa/): `esp32dev`,
+`espressif32@6.5.0`, `dio` flash at 40 MHz, and an ST7789 display setup. If your
+board is an older single-USB ILI9341 CYD, change `User_Setup.h` back to
+`ILI9341_2_DRIVER`.
+
+```bash
+pio run -e cyd-usb-c
+pio run -e cyd-micro-usb -t upload
+```
+
+If upload fails, hold `BOOT` while PlatformIO starts connecting or try another USB
+cable/port. The upload speed is set to `460800`, matching the known-good
+dual-USB reference project; lower it to `115200` in `platformio.ini` if your USB
+bridge is unreliable.
+
+## Arduino IDE Installation
 
 ### 1. Add ESP32 Board Support
 1. Go to `File` → `Preferences`

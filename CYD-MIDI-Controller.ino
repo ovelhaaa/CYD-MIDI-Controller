@@ -26,14 +26,13 @@
 #include "midi_utils.h"
 
 // Hardware setup
-#define XPT2046_IRQ 36
+#define XPT2046_IRQ -1
 #define XPT2046_MOSI 32
 #define XPT2046_MISO 39
 #define XPT2046_CLK 25
 #define XPT2046_CS 33
 
 // Global objects
-SPIClass mySpi = SPIClass(VSPI);
 XPT2046_Touchscreen ts(XPT2046_CS, XPT2046_IRQ);
 TFT_eSPI tft = TFT_eSPI();
 
@@ -110,8 +109,8 @@ void setup() {
   Serial.begin(115200);
   
   // Touch setup
-  mySpi.begin(XPT2046_CLK, XPT2046_MISO, XPT2046_MOSI, XPT2046_CS);
-  ts.begin(mySpi);
+  ts.begin();
+  SPI.begin(XPT2046_CLK, XPT2046_MISO, XPT2046_MOSI, XPT2046_CS);
   ts.setRotation(1);
   
   // Display setup

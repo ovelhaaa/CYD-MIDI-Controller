@@ -1,3 +1,6 @@
+#ifndef CYD_MIDI_CONTROLLER_USER_SETUP_H
+#define CYD_MIDI_CONTROLLER_USER_SETUP_H
+
 //                            USER DEFINED SETTINGS
 //   Set driver type, fonts to be loaded, pins used and SPI control method etc
 //
@@ -43,7 +46,7 @@
 
 // Only define one driver, the other ones must be commented out
 //#define ILI9341_DRIVER       // Generic driver for common displays
-#define ILI9341_2_DRIVER     // Alternative ILI9341 driver, see https://github.com/Bodmer/TFT_eSPI/issues/1172
+//#define ILI9341_2_DRIVER     // Alternative ILI9341 driver, see https://github.com/Bodmer/TFT_eSPI/issues/1172
 //#define ST7735_DRIVER      // Define additional parameters below for this display
 //#define ILI9163_DRIVER     // Define additional parameters below for this display
 //#define S6D02A1_DRIVER
@@ -52,7 +55,7 @@
 //#define ILI9481_DRIVER
 //#define ILI9486_DRIVER
 //#define ILI9488_DRIVER     // WARNING: Do not connect ILI9488 display SDO to MISO if other devices share the SPI bus (TFT SDO does NOT tristate when CS is high)
-//#define ST7789_DRIVER      // Full configuration option, define additional parameters below for this display
+#define ST7789_DRIVER      // Full configuration option, define additional parameters below for this display
 //#define ST7789_2_DRIVER    // Minimal configuration option, define additional parameters below for this display
 //#define R61581_DRIVER
 //#define RM68140_DRIVER
@@ -113,7 +116,7 @@
 // 2 lines try both options, one of the options should correct the inversion.
 
 // #define TFT_INVERSION_ON
-// #define TFT_INVERSION_OFF
+#define TFT_INVERSION_OFF
 
 
 // ##################################################################################
@@ -355,8 +358,8 @@
 // #define SPI_FREQUENCY  10000000
 // #define SPI_FREQUENCY  20000000
 //#define SPI_FREQUENCY  27000000
-// #define SPI_FREQUENCY  40000000
-#define SPI_FREQUENCY  55000000 // STM32 SPI1 only (SPI2 maximum is 27MHz)
+#define SPI_FREQUENCY  40000000
+//#define SPI_FREQUENCY  55000000 // STM32 SPI1 only (SPI2 maximum is 27MHz)
 // #define SPI_FREQUENCY  80000000
 
 // Optional reduced SPI frequency for reading TFT
@@ -381,3 +384,5 @@
 // so changing it here has no effect
 
 // #define SUPPORT_TRANSACTIONS
+
+#endif // CYD_MIDI_CONTROLLER_USER_SETUP_H
