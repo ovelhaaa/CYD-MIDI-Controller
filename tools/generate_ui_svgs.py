@@ -173,22 +173,53 @@ def make_keys():
 
 def make_beats():
     s = SVG("BEATS")
-    header(s, "BEATS", "120 BPM")
-    s.rect(6, 48, 308, 140, COLORS["panel"], COLORS["border"], 6)
-    labels = ["KICK", "SNRE", "HHAT", "OPEN"]
+    header(s, "BEATS", "FOUR  120 BPM")
+    s.rect(6, 46, 308, 114, COLORS["panel"], COLORS["border"], 6)
+    labels = ["KCK", "SNR", "HAT", "OPN"]
     cols = [COLORS["error"], COLORS["warning"], COLORS["primary"], COLORS["accent"]]
+    pattern = [
+        {0: 2, 4: 2, 8: 2, 12: 2},
+        {4: 2, 12: 2},
+        {2: 1, 6: 1, 10: 1, 14: 1},
+        {15: 1},
+    ]
+    for beat in range(4):
+        x = 48 + beat * 4 * 16 - 1
+        s.line(x, 50, x, 154, COLORS["border"])
     for tr, label in enumerate(labels):
-        y = 54 + tr * 32
-        s.text(label, 12, y + 18, 8, cols[tr], weight="700")
+        y = 52 + tr * 28
+        s.rect(10, y + 1, 34, 22, COLORS["panel"], cols[tr], 4)
+        s.text(label, 27, y + 16, 7, cols[tr], "middle", "700")
         for st in range(16):
-            x = 46 + st * 16
-            active = st in ([0, 4, 8, 12], [4, 12], [2, 6, 10, 14], [14])[tr]
-            fill = cols[tr] if active else (COLORS["surface"] if st % 4 == 0 else COLORS["bg"])
-            s.rect(x, y, 15, 28, fill, cols[tr] if active else COLORS["border"], 3)
-    for args in [(8,202,56,30,"PLAY",COLORS["success"]), (72,202,60,30,"CLEAR",COLORS["warning"]), (148,202,46,30,"BPM-",COLORS["secondary"]), (202,202,46,30,"BPM+",COLORS["secondary"])]:
+            x = 48 + st * 16
+            level = pattern[tr].get(st, 0)
+            fill = COLORS["surface"] if st % 4 == 0 else COLORS["bg"]
+            stroke = COLORS["border"]
+            if level == 1:
+                fill = cols[tr]
+            elif level == 2:
+                fill = COLORS["text"]
+                stroke = cols[tr]
+            s.rect(x, y, 15, 24, fill, stroke, 3)
+            if level == 2:
+                s.circle(x + 7.5, y + 12, 3, cols[tr])
+    for args in [
+        (8, 172, 50, 24, "PLAY", COLORS["success"]),
+        (64, 172, 44, 24, "PAT", COLORS["accent"]),
+        (114, 172, 44, 24, "FILL", COLORS["warning"]),
+        (164, 172, 44, 24, "CLR", COLORS["error"]),
+        (218, 172, 28, 24, "SW-", COLORS["secondary"]),
+        (288, 172, 24, 24, "+", COLORS["secondary"]),
+        (8, 206, 46, 26, "BPM-", COLORS["secondary"]),
+        (128, 206, 46, 26, "BPM+", COLORS["secondary"]),
+    ]:
         button(s, *args)
-    s.rect(260, 202, 52, 30, COLORS["panel"], r=5)
-    s.text("120", 286, 222, 12, COLORS["text"], "middle", "700")
+    s.rect(252, 172, 30, 24, COLORS["panel"], COLORS["border"], 5)
+    s.text("50", 267, 188, 8, COLORS["dim"], "middle", "700")
+    s.rect(62, 206, 58, 26, COLORS["panel"], COLORS["border"], 5)
+    s.text("120", 91, 224, 12, COLORS["text"], "middle", "700")
+    s.rect(188, 206, 124, 26, COLORS["panel"], COLORS["border"], 5)
+    s.text("CH 10  FOUR", 250, 224, 10, COLORS["dim"], "middle", "700")
     return s.finish()
 
 
