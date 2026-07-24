@@ -25,7 +25,6 @@ ChordType diatonicChords[] = {
 };
 
 int chordOctave = 4;
-int chordScale = 0;
 int activeChordNotes[8][4]; // [chord][note index]
 bool chordPressed[8] = {false}; // 8 diatonic chords
 
@@ -40,7 +39,6 @@ void stopAllChords();
 // Implementations
 void initializeAutoChordMode() {
   chordOctave = 4;
-  chordScale = 0;
   stopAllChords();
   for (int i = 0; i < 8; i++) {
     chordPressed[i] = false;
@@ -52,7 +50,7 @@ void initializeAutoChordMode() {
 
 void drawAutoChordMode() {
   tft.fillScreen(THEME_BG);
-  drawHeader("CHORD MODE", scales[chordScale].name + " Diatonic");
+  drawHeader("CHORD MODE", getRootName() + " " + scales[performance.scale].name);
   
   drawChordKeys();
   
@@ -100,9 +98,9 @@ void drawChordKeys() {
     // Root note name
     int rootNote;
     if (i == 7) { // I+ octave
-      rootNote = getNoteInScale(chordScale, 0, chordOctave + 1);
+      rootNote = getNoteInScale(performance.scale, 0, chordOctave + 1);
     } else {
-      rootNote = getNoteInScale(chordScale, i, chordOctave);
+      rootNote = getNoteInScale(performance.scale, i, chordOctave);
     }
     String rootName = getNoteNameFromMIDI(rootNote);
     tft.setTextColor(chordPressed[i] ? THEME_BG : THEME_TEXT_DIM, bgColor);
@@ -132,7 +130,7 @@ void handleAutoChordMode() {
     
     // Scale selector
     if (isButtonPressed(122, 184, 68, 30)) {
-      chordScale = (chordScale + 1) % NUM_SCALES;
+      nudgeGlobalScale(1);
       drawAutoChordMode();
       return;
     }
@@ -224,9 +222,9 @@ void playChord(int scaleDegree, bool on) {
   // Get root note for this scale degree
   int rootNote;
   if (scaleDegree == 7) { // I+ octave
-    rootNote = getNoteInScale(chordScale, 0, chordOctave + 1);
+    rootNote = getNoteInScale(performance.scale, 0, chordOctave + 1);
   } else {
-    rootNote = getNoteInScale(chordScale, scaleDegree, chordOctave);
+    rootNote = getNoteInScale(performance.scale, scaleDegree, chordOctave);
   }
   
   if (on) {
@@ -237,7 +235,7 @@ void playChord(int scaleDegree, bool on) {
       if (chord.intervals[i] >= 0) {
         int chordNote = rootNote + chord.intervals[i];
         if (chordNote >= 24 && chordNote <= 108) {
-          sendMIDI(0x90, chordNote, 100);
+          sendNote(performance.chordsChannel, chordNote, 100, true);
           activeChordNotes[scaleDegree][i] = chordNote;
         }
       }
@@ -246,7 +244,7 @@ void playChord(int scaleDegree, bool on) {
     // Stop chord for this specific scale degree
     for (int i = 0; i < 4; i++) {
       if (activeChordNotes[scaleDegree][i] != -1) {
-        sendMIDI(0x80, activeChordNotes[scaleDegree][i], 0);
+        sendNote(performance.chordsChannel, activeChordNotes[scaleDegree][i], 0, false);
         activeChordNotes[scaleDegree][i] = -1;
       }
     }

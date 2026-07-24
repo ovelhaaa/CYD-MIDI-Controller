@@ -61,6 +61,18 @@ struct Scale {
   int numNotes;
 };
 
+struct PerformanceState {
+  int root = 0;      // 0=C, 1=C#, ...
+  int scale = 0;
+  int bpm = 120;
+  uint8_t keysChannel = 0;
+  uint8_t chordsChannel = 1;
+  uint8_t arpChannel = 2;
+  uint8_t generativeChannel = 3;
+  uint8_t modChannel = 0;
+  uint8_t drumsChannel = 9;
+};
+
 // Global scale definitions
 extern Scale scales[];
 extern const int NUM_SCALES;
@@ -72,5 +84,6 @@ extern bool deviceConnected;
 extern uint8_t midiPacket[];
 extern TouchState touch;
 extern AppMode currentMode;
+extern PerformanceState performance;
 
 #endif

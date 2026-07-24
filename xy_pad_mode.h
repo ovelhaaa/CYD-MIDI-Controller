@@ -229,9 +229,9 @@ void updateXYValues(int touchX, int touchY) {
 void sendXYValues() {
   if (deviceConnected) {
     // Send X CC
-    sendMIDI(0xB0, xCC, xValue);
+    sendCC(performance.modChannel, xCC, xValue);
     // Send Y CC
-    sendMIDI(0xB0, yCC, yValue);
+    sendCC(performance.modChannel, yCC, yValue);
   }
 }
 

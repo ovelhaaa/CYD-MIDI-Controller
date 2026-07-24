@@ -7,12 +7,10 @@
 
 // Arpeggiator mode variables
 struct Arpeggiator {
-  int scaleType = 0; // Scale for chord generation
   int chordType = 0; // 0=Major, 1=Minor, 2=7th
   int pattern = 0; // 0=Up, 1=Down, 2=UpDown, 3=Random
   int octaves = 2;
   int speed = 8; // 16th notes
-  int bpm = 120; // BPM control
   bool isPlaying = false;
   int currentStep = 0;
   int currentNote = -1; // Current single note being played
@@ -42,12 +40,10 @@ void calculateStepInterval();
 
 // Implementations
 void initializeArpeggiatorMode() {
-  arp.scaleType = 0;
   arp.chordType = 0;
   arp.pattern = 0;
   arp.octaves = 2;
   arp.speed = 8;
-  arp.bpm = 120;
   arp.isPlaying = false;
   arp.currentStep = 0;
   arp.currentNote = -1;
@@ -58,6 +54,7 @@ void initializeArpeggiatorMode() {
 }
 
 void drawArpeggiatorMode() {
+  calculateStepInterval();
   tft.fillScreen(THEME_BG);
   drawHeader("ARPEGGIATOR", "Piano Chord Arps");
   
@@ -113,7 +110,7 @@ void drawArpControls() {
   tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
   tft.drawString("BPM:", 10, y + 6, 1);
   tft.setTextColor(THEME_TEXT, THEME_PANEL);
-  tft.drawString(String(arp.bpm), 50, y + 6, 1);
+  tft.drawString(String(performance.bpm), 50, y + 6, 1);
   drawRoundButton(80, y, 25, 25, "-", THEME_SECONDARY);
   drawRoundButton(110, y, 25, 25, "+", THEME_SECONDARY);
   
@@ -180,7 +177,7 @@ void handleArpeggiatorMode() {
   // Back button
   if (touch.justPressed && isButtonPressed(10, 10, 50, 25)) {
     if (arp.currentNote != -1) {
-      sendMIDI(0x80, arp.currentNote, 0);
+      sendNote(performance.arpChannel, arp.currentNote, 0, false);
       arp.currentNote = -1;
     }
     arp.isPlaying = false;
@@ -249,13 +246,13 @@ void handleArpeggiatorMode() {
     
     // BPM controls
     if (isButtonPressed(80, y, 25, 25)) {
-      arp.bpm = max(60, arp.bpm - 5);
+      nudgeGlobalBpm(-5);
       calculateStepInterval();
       drawArpControls();
       return;
     }
     if (isButtonPressed(110, y, 25, 25)) {
-      arp.bpm = min(200, arp.bpm + 5);
+      nudgeGlobalBpm(5);
       calculateStepInterval();
       drawArpControls();
       return;
@@ -291,19 +288,20 @@ void handleArpeggiatorMode() {
           // Stop current arp
           arp.isPlaying = false;
           if (arp.currentNote != -1) {
-            sendMIDI(0x80, arp.currentNote, 0);
+            sendNote(performance.arpChannel, arp.currentNote, 0, false);
             arp.currentNote = -1;
           }
         } else {
           // Start new arp - keep timing if already playing
           if (arp.isPlaying && arp.currentNote != -1) {
-            sendMIDI(0x80, arp.currentNote, 0);
+            sendNote(performance.arpChannel, arp.currentNote, 0, false);
           }
           arp.triggeredKey = note;
           arp.triggeredOctave = pianoOctave;
           if (!arp.isPlaying) {
             arp.isPlaying = true;
             arp.currentStep = 0;
+            calculateStepInterval();
             arp.lastStepTime = millis();
           }
         }
@@ -333,7 +331,7 @@ void playArpNote() {
   
   // Turn off previous note
   if (arp.currentNote != -1) {
-    sendMIDI(0x80, arp.currentNote, 0);
+    sendNote(performance.arpChannel, arp.currentNote, 0, false);
   }
   
   // Check if we should skip this note (for CHANCE pattern)
@@ -348,7 +346,7 @@ void playArpNote() {
   arp.currentNote = getArpNote();
   
   // Play single note
-  sendMIDI(0x90, arp.currentNote, 100);
+  sendNote(performance.arpChannel, arp.currentNote, 100, true);
   
   // Update display
   drawArpControls();
@@ -416,7 +414,7 @@ int getArpNote() {
 void calculateStepInterval() {
   // Calculate step interval from BPM and speed
   // BPM = beats per minute, speed = notes per beat (4, 8, 16, 32)
-  float beatsPerSecond = arp.bpm / 60.0;
+  float beatsPerSecond = performance.bpm / 60.0;
   float notesPerSecond = beatsPerSecond * (arp.speed / 4.0);
   arp.stepInterval = 1000.0 / notesPerSecond;
 }

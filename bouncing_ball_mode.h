@@ -31,8 +31,6 @@ struct Wall {
 
 #define NUM_WALLS 24  // 8 top + 8 bottom + 4 left + 4 right
 Wall walls[NUM_WALLS];
-int ballScale = 0;  // Scale selection
-int ballKey = 0;    // Key selection
 int ballOctave = 4;
 
 // Function declarations
@@ -49,8 +47,6 @@ void checkWallCollisions();
 
 // Implementations
 void initializeBouncingBallMode() {
-  ballScale = 0;
-  ballKey = 0;
   ballOctave = 4;
   numActiveBalls = 1;
   initializeBalls();
@@ -73,10 +69,9 @@ void drawBouncingBallMode() {
   drawRoundButton(282, 202, 30, 30, "O", THEME_PRIMARY);
   
   // Status display
-  String keyName = getNoteNameFromMIDI(ballKey);
   tft.fillRoundRect(8, 188, 304, 12, 3, THEME_PANEL);
   tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
-  tft.drawCentreString(keyName + " " + scales[ballScale].name + "  Oct " + String(ballOctave) +
+  tft.drawCentreString(getRootName() + " " + scales[performance.scale].name + "  Oct " + String(ballOctave) +
                        "  Balls " + String(numActiveBalls), 160, 190, 1);
   
   drawWalls();
@@ -108,7 +103,7 @@ void initializeWalls() {
     walls[wallIndex].y = 60;
     walls[wallIndex].w = 28;
     walls[wallIndex].h = 3;
-    walls[wallIndex].note = getNoteInScale(ballScale, i, ballOctave) + ballKey;
+    walls[wallIndex].note = getNoteInScale(performance.scale, i, ballOctave);
     walls[wallIndex].noteName = getNoteNameFromMIDI(walls[wallIndex].note);
     walls[wallIndex].color = THEME_PRIMARY;
     walls[wallIndex].active = false;
@@ -122,7 +117,7 @@ void initializeWalls() {
     walls[wallIndex].y = 63 + i * 28;
     walls[wallIndex].w = 3;
     walls[wallIndex].h = 28;
-    walls[wallIndex].note = getNoteInScale(ballScale, i, ballOctave + 1) + ballKey;
+    walls[wallIndex].note = getNoteInScale(performance.scale, i, ballOctave + 1);
     walls[wallIndex].noteName = getNoteNameFromMIDI(walls[wallIndex].note);
     walls[wallIndex].color = THEME_SECONDARY;
     walls[wallIndex].active = false;
@@ -136,7 +131,7 @@ void initializeWalls() {
     walls[wallIndex].y = 177;
     walls[wallIndex].w = 28;
     walls[wallIndex].h = 3;
-    walls[wallIndex].note = getNoteInScale(ballScale, 7 - i, ballOctave) + ballKey;
+    walls[wallIndex].note = getNoteInScale(performance.scale, 7 - i, ballOctave);
     walls[wallIndex].noteName = getNoteNameFromMIDI(walls[wallIndex].note);
     walls[wallIndex].color = THEME_ACCENT;
     walls[wallIndex].active = false;
@@ -150,7 +145,7 @@ void initializeWalls() {
     walls[wallIndex].y = 63 + i * 28;
     walls[wallIndex].w = 3;
     walls[wallIndex].h = 28;
-    walls[wallIndex].note = getNoteInScale(ballScale, 3 - i, ballOctave + 1) + ballKey;
+    walls[wallIndex].note = getNoteInScale(performance.scale, 3 - i, ballOctave + 1);
     walls[wallIndex].noteName = getNoteNameFromMIDI(walls[wallIndex].note);
     walls[wallIndex].color = THEME_WARNING;
     walls[wallIndex].active = false;
@@ -187,7 +182,7 @@ void handleBouncingBallMode() {
     
     // Scale button
     if (isButtonPressed(120, 202, 58, 30)) {
-      ballScale = (ballScale + 1) % NUM_SCALES;
+      nudgeGlobalScale(1);
       initializeWalls();
       drawBouncingBallMode();
       return;
@@ -195,14 +190,14 @@ void handleBouncingBallMode() {
     
     // Key controls
     if (isButtonPressed(186, 202, 42, 30)) {
-      ballKey = (ballKey - 1 + 12) % 12;
+      nudgeGlobalRoot(-1);
       initializeWalls();
       drawBouncingBallMode();
       return;
     }
     
     if (isButtonPressed(234, 202, 42, 30)) {
-      ballKey = (ballKey + 1) % 12;
+      nudgeGlobalRoot(1);
       initializeWalls();
       drawBouncingBallMode();
       return;
@@ -358,8 +353,8 @@ void checkWallCollisions() {
       
       if (collision) {
         if (deviceConnected) {
-          sendMIDI(0x90, walls[w].note, random(70, 110));
-          sendMIDI(0x80, walls[w].note, 0);
+          sendNote(performance.generativeChannel, walls[w].note, random(70, 110), true);
+          sendNote(performance.generativeChannel, walls[w].note, 0, false);
         }
         
         walls[w].active = true;

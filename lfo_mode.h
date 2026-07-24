@@ -168,7 +168,7 @@ void handleLFOMode() {
   
   if (touch.justPressed) {
     int y = 55;
-    int spacing = 30;
+    int spacing = 36;
     
     // Start/Stop
     if (isButtonPressed(14, y + 2, 62, 30)) {
@@ -309,19 +309,10 @@ void sendLFOValue(int value) {
   if (!deviceConnected) return;
   
   if (lfo.pitchWheelMode) {
-    // Send pitchwheel (14-bit value already calculated)
-    byte lsb = value & 0x7F;
-    byte msb = (value >> 7) & 0x7F;
-    
-    // Pitchwheel: 0xE0, LSB, MSB
-    midiPacket[2] = 0xE0;
-    midiPacket[3] = lsb;
-    midiPacket[4] = msb;
-    pCharacteristic->setValue(midiPacket, 5);
-    pCharacteristic->notify();
+    sendPitchBend(performance.modChannel, value);
   } else {
     // Send regular CC
-    sendMIDI(0xB0, lfo.ccTarget, value);
+    sendCC(performance.modChannel, lfo.ccTarget, value);
   }
 }
 

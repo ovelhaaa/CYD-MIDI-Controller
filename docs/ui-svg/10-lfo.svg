@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240">
+<title>LFO</title>
+<rect width="320" height="240" fill="#000000"/>
+<rect x="0" y="0" width="320" height="42" fill="#181c18"/>
+<line x1="0" y1="42" x2="320" y2="42" stroke="#393c39" stroke-width="1"/>
+<rect x="8" y="8" width="46" height="26" fill="#101410" rx="6" ry="6" stroke="#ff0000" stroke-width="1"/>
+<text x="31" y="25" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="middle">BACK</text>
+<text x="160" y="20" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" text-anchor="middle">LFO MOD</text>
+<text x="160" y="35" fill="#9c9c9c" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="500" text-anchor="middle">CC 1</text>
+<circle cx="304" cy="14" r="5" fill="#ff0000" stroke="#393c39" stroke-width="1"/>
+<rect x="6" y="50" width="308" height="118" fill="#101410" rx="6" ry="6" stroke="#393c39" stroke-width="1"/>
+<rect x="15" y="58" width="62" height="30" fill="#000000" rx="6" ry="6"/>
+<rect x="14" y="56" width="62" height="30" fill="#101410" rx="6" ry="6" stroke="#00ff00" stroke-width="1"/>
+<text x="45.0" y="75.0" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="middle">START</text>
+<text x="88" y="64" fill="#9c9c9c" font-family="Arial, Helvetica, sans-serif" font-size="8" font-weight="500" text-anchor="start">RATE</text>
+<text x="88" y="80" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" text-anchor="start">1.0Hz</text>
+<rect x="157" y="58" width="30" height="30" fill="#000000" rx="6" ry="6"/>
+<rect x="156" y="56" width="30" height="30" fill="#101410" rx="6" ry="6" stroke="#ffaa00" stroke-width="1"/>
+<text x="171.0" y="75.0" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="middle">-</text>
+<rect x="193" y="58" width="30" height="30" fill="#000000" rx="6" ry="6"/>
+<rect x="192" y="56" width="30" height="30" fill="#101410" rx="6" ry="6" stroke="#ffaa00" stroke-width="1"/>
+<text x="207.0" y="75.0" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="middle">+</text>
+<rect x="239" y="58" width="66" height="30" fill="#000000" rx="6" ry="6"/>
+<rect x="238" y="56" width="66" height="30" fill="#101410" rx="6" ry="6" stroke="#00ffff" stroke-width="1"/>
+<text x="271.0" y="75.0" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="middle">SINE</text>
+<text x="16" y="100" fill="#9c9c9c" font-family="Arial, Helvetica, sans-serif" font-size="8" font-weight="500" text-anchor="start">AMT</text>
+<text x="16" y="116" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" text-anchor="start">64</text>
+<rect x="144" y="101" width="160" height="14" fill="#000000" rx="3" ry="3" stroke="#393c39" stroke-width="1"/>
+<rect x="145" y="102" width="78" height="12" fill="#00bfff" rx="2" ry="2"/>
+<text x="16" y="136" fill="#9c9c9c" font-family="Arial, Helvetica, sans-serif" font-size="8" font-weight="500" text-anchor="start">TARGET</text>
+<text x="16" y="152" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" text-anchor="start">CC1</text>
+<rect x="91" y="130" width="30" height="30" fill="#000000" rx="6" ry="6"/>
+<rect x="90" y="128" width="30" height="30" fill="#101410" rx="6" ry="6" stroke="#ffaa00" stroke-width="1"/>
+<text x="105.0" y="147.0" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="middle">-</text>
+<rect x="127" y="130" width="30" height="30" fill="#000000" rx="6" ry="6"/>
+<rect x="126" y="128" width="30" height="30" fill="#101410" rx="6" ry="6" stroke="#ffaa00" stroke-width="1"/>
+<text x="141.0" y="147.0" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="middle">+</text>
+<rect x="175" y="130" width="76" height="30" fill="#000000" rx="6" ry="6"/>
+<rect x="174" y="128" width="76" height="30" fill="#101410" rx="6" ry="6" stroke="#ffff00" stroke-width="1"/>
+<text x="212.0" y="147.0" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="middle">PITCH</text>
+<rect x="260" y="128" width="44" height="30" fill="#000000" rx="5" ry="5"/>
+<text x="282" y="148" fill="#00ffff" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" text-anchor="middle">64</text>
+<rect x="10" y="178" width="300" height="48" fill="#101410" rx="6" ry="6" stroke="#393c39" stroke-width="1"/>
+<line x1="18" y1="202" x2="302" y2="202" stroke="#9c9c9c" stroke-width="1"/>
+<polyline points="18,202.0 24,196.85653288816823 30,192.33673469143463 36,188.98865161608975 42,187.2182540501731 48,187.24021079689095 54,189.0518595002669 60,192.43352946798245 66,196.97517774766143 72,202.12610871050722 78,207.2617484153443 84,211.7593770559775 90,215.0736365862038 96,216.80265787754854 102,216.736789189365 108,214.8840174013989 114,211.46899956808483 120,206.90582222304613 126,201.74779149273476 132,196.620342197608 138,192.14520101921818 144,188.86499929610676 150,187.177476491845 156,187.287252465694 162,189.1810163786758 168,192.6291406936871 174,197.21352456475972 180,202.37829047715488 186,207.4971869387789 192,211.94952433826495 198,215.19543639957504 204,216.84134143748275 210,216.68766593726977 216,214.7530437562955 222,211.27205668355552 228,206.6667903247169 234,201.49565429168294 240,196.38567248281365 246,191.95645356705097 252,188.74506059853047 258,187.14088966457695 264,187.33845382889976 270,189.31379753285597 276,192.82740131651587 282,197.45322464881443 288,202.63036529078258 294,207.73107125776008 300,212.1368586190649" fill="none" stroke="#00bfff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

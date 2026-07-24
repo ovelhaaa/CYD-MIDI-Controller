@@ -14,8 +14,6 @@
 #define KEYBOARD_CTRL_Y 178
 #define KEYBOARD_CTRL_H 30
 int keyboardOctave = 4;
-int keyboardScale = 0;
-int keyboardKey = 0;  // Key signature (C=0, C#=1, D=2, etc.)
 int lastKey = -1;
 int lastRow = -1;
 
@@ -29,15 +27,13 @@ void playKeyboardNote(int row, int keyIndex, bool on);
 // Implementations
 void initializeKeyboardMode() {
   keyboardOctave = 4;
-  keyboardScale = 0;
-  keyboardKey = 0;
   lastKey = -1;
   lastRow = -1;
 }
 
 void drawKeyboardMode() {
   tft.fillScreen(THEME_BG);
-  drawHeader("KEYS", scales[keyboardScale].name + " Key " + getNoteNameFromMIDI(keyboardKey));
+  drawHeader("KEYS", scales[performance.scale].name + " Root " + getRootName());
   
   // Draw keys - two rows
   for (int row = 0; row < NUM_ROWS; row++) {
@@ -58,7 +54,7 @@ void drawKeyboardMode() {
   tft.fillRoundRect(8, 214, 304, 18, 4, THEME_PANEL);
   tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
   tft.drawCentreString("Oct " + String(keyboardOctave) + "  " +
-               scales[keyboardScale].name + "  Root " + getNoteNameFromMIDI(keyboardKey), 160, 217, 1);
+               scales[performance.scale].name + "  Root " + getRootName(), 160, 217, 1);
 }
 
 void drawKeyboardKey(int row, int keyIndex, bool pressed) {
@@ -76,7 +72,7 @@ void drawKeyboardKey(int row, int keyIndex, bool pressed) {
   
   // Row 0 = base octave, Row 1 = octave higher
   // Apply key signature transpose
-  int note = getNoteInScale(keyboardScale, keyIndex, keyboardOctave + row) + keyboardKey;
+  int note = getNoteInScale(performance.scale, keyIndex, keyboardOctave + row);
   String noteName = getNoteNameFromMIDI(note);
   
   tft.setTextColor(textColor, bgColor);
@@ -103,17 +99,17 @@ void handleKeyboardMode() {
       return;
     }
     if (isButtonPressed(116, KEYBOARD_CTRL_Y, 66, KEYBOARD_CTRL_H)) {
-      keyboardScale = (keyboardScale + 1) % NUM_SCALES;
+      nudgeGlobalScale(1);
       drawKeyboardMode();
       return;
     }
     if (isButtonPressed(190, KEYBOARD_CTRL_Y, 46, KEYBOARD_CTRL_H)) {
-      keyboardKey = (keyboardKey - 1 + 12) % 12;
+      nudgeGlobalRoot(-1);
       drawKeyboardMode();
       return;
     }
     if (isButtonPressed(242, KEYBOARD_CTRL_Y, 46, KEYBOARD_CTRL_H)) {
-      keyboardKey = (keyboardKey + 1) % 12;
+      nudgeGlobalRoot(1);
       drawKeyboardMode();
       return;
     }
@@ -161,8 +157,8 @@ void handleKeyboardMode() {
 void playKeyboardNote(int row, int keyIndex, bool on) {
   if (!deviceConnected) return;
   
-  int note = getNoteInScale(keyboardScale, keyIndex, keyboardOctave + row) + keyboardKey;
-  sendMIDI(on ? 0x90 : 0x80, note, on ? 100 : 0);
+  int note = getNoteInScale(performance.scale, keyIndex, keyboardOctave + row);
+  sendNote(performance.keysChannel, note, on ? 100 : 0, on);
   
   Serial.printf("Key R%d:%d: %s %s\n", row, keyIndex, getNoteNameFromMIDI(note).c_str(), on ? "ON" : "OFF");
 }

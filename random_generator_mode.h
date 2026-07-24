@@ -7,12 +7,9 @@
 
 // Random Generator mode variables
 struct RandomGen {
-  int rootNote = 60; // C4
-  int scaleType = 0; // Major
   int minOctave = 3;
   int maxOctave = 6;
   int probability = 50; // 0-100%
-  int bpm = 120; // BPM instead of interval
   int subdivision = 4; // 4=quarter, 8=eighth, 16=sixteenth
   bool isPlaying = false;
   unsigned long lastNoteTime = 0;
@@ -34,12 +31,9 @@ void calculateNoteInterval();
 
 // Implementations
 void initializeRandomGeneratorMode() {
-  randomGen.rootNote = 60;
-  randomGen.scaleType = 0;
   randomGen.minOctave = 3;
   randomGen.maxOctave = 6;
   randomGen.probability = 50;
-  randomGen.bpm = 120;
   randomGen.subdivision = 4;
   randomGen.isPlaying = false;
   randomGen.currentNote = -1;
@@ -48,6 +42,7 @@ void initializeRandomGeneratorMode() {
 }
 
 void drawRandomGeneratorMode() {
+  calculateNoteInterval();
   tft.fillScreen(THEME_BG);
   drawHeader("RNG JAMS", "Random Music");
   
@@ -67,13 +62,12 @@ void drawRandomGenControls() {
   
   tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
   tft.drawString("KEY", 88, y + 4, 1);
-  String rootName = getNoteNameFromMIDI(randomGen.rootNote);
-  drawRoundButton(116, y, 42, 30, rootName, THEME_PRIMARY);
+  drawRoundButton(116, y, 42, 30, getRootName(), THEME_PRIMARY);
   drawRoundButton(164, y, 30, 30, "+", THEME_SECONDARY);
   drawRoundButton(200, y, 30, 30, "-", THEME_SECONDARY);
   
   // Scale selector
-  drawRoundButton(238, y, 66, 30, scales[randomGen.scaleType].name, THEME_ACCENT);
+  drawRoundButton(238, y, 66, 30, scales[performance.scale].name, THEME_ACCENT);
   
   y += spacing;
   
@@ -113,7 +107,7 @@ void drawRandomGenControls() {
   tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
   tft.drawString("BPM", 16, y + 4, 1);
   tft.setTextColor(THEME_TEXT, THEME_PANEL);
-  tft.drawString(String(randomGen.bpm), 16, y + 17, 2);
+  tft.drawString(String(performance.bpm), 16, y + 17, 2);
   drawRoundButton(64, y, 30, 30, "-", THEME_SECONDARY);
   drawRoundButton(100, y, 30, 30, "+", THEME_SECONDARY);
   
@@ -146,7 +140,7 @@ void handleRandomGeneratorMode() {
   // Back button
   if (touch.justPressed && isButtonPressed(10, 10, 50, 25)) {
     if (randomGen.currentNote != -1) {
-      sendMIDI(0x80, randomGen.currentNote, 0);
+      sendNote(performance.generativeChannel, randomGen.currentNote, 0, false);
       randomGen.currentNote = -1;
     }
     randomGen.isPlaying = false;
@@ -162,9 +156,10 @@ void handleRandomGeneratorMode() {
     if (isButtonPressed(14, y, 62, 30)) {
       randomGen.isPlaying = !randomGen.isPlaying;
       if (randomGen.isPlaying) {
+        calculateNoteInterval();
         randomGen.nextNoteTime = millis() + randomGen.noteInterval;
       } else if (randomGen.currentNote != -1) {
-        sendMIDI(0x80, randomGen.currentNote, 0);
+        sendNote(performance.generativeChannel, randomGen.currentNote, 0, false);
         randomGen.currentNote = -1;
       }
       drawRandomGenControls();
@@ -172,19 +167,19 @@ void handleRandomGeneratorMode() {
     }
     
     if (isButtonPressed(164, y, 30, 30)) {
-      randomGen.rootNote = min(127, randomGen.rootNote + 1);
+      nudgeGlobalRoot(1);
       drawRandomGenControls();
       return;
     }
     if (isButtonPressed(200, y, 30, 30)) {
-      randomGen.rootNote = max(0, randomGen.rootNote - 1);
+      nudgeGlobalRoot(-1);
       drawRandomGenControls();
       return;
     }
     
     // Scale selector
     if (isButtonPressed(238, y, 66, 30)) {
-      randomGen.scaleType = (randomGen.scaleType + 1) % NUM_SCALES;
+      nudgeGlobalScale(1);
       drawRandomGenControls();
       return;
     }
@@ -237,13 +232,13 @@ void handleRandomGeneratorMode() {
     
     // BPM controls
     if (isButtonPressed(64, y, 30, 30)) {
-      randomGen.bpm = max(60, randomGen.bpm - 5);
+      nudgeGlobalBpm(-5);
       calculateNoteInterval();
       drawRandomGenControls();
       return;
     }
     if (isButtonPressed(100, y, 30, 30)) {
-      randomGen.bpm = min(200, randomGen.bpm + 5);
+      nudgeGlobalBpm(5);
       calculateNoteInterval();
       drawRandomGenControls();
       return;
@@ -284,20 +279,20 @@ void updateRandomGenerator() {
 void playRandomNote() {
   // Stop current note if playing
   if (randomGen.currentNote != -1) {
-    sendMIDI(0x80, randomGen.currentNote, 0);
+    sendNote(performance.generativeChannel, randomGen.currentNote, 0, false);
     randomGen.currentNote = -1;
   }
   
   // Check probability
   if (random(100) < randomGen.probability) {
     // Generate random note in scale and octave range
-    Scale& scale = scales[randomGen.scaleType];
+    Scale& scale = scales[performance.scale];
     int degree = random(scale.numNotes);
     int octave = random(randomGen.minOctave, randomGen.maxOctave + 1);
-    int note = randomGen.rootNote % 12 + scale.intervals[degree] + (octave * 12);
+    int note = performance.root + scale.intervals[degree] + (octave * 12);
     
     if (note >= 0 && note <= 127) {
-      sendMIDI(0x90, note, 100);
+      sendNote(performance.generativeChannel, note, 100, true);
       randomGen.currentNote = note;
       
       Serial.printf("Random note: %s (prob: %d%%)\n", 
@@ -311,7 +306,7 @@ void playRandomNote() {
 
 void calculateNoteInterval() {
   // Calculate note interval from BPM and subdivision
-  float beatsPerSecond = randomGen.bpm / 60.0;
+  float beatsPerSecond = performance.bpm / 60.0;
   float notesPerSecond = beatsPerSecond * (randomGen.subdivision / 4.0);
   randomGen.noteInterval = 1000.0 / notesPerSecond;
 }

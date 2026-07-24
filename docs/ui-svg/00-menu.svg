@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240">
+<title>CYD MIDI menu</title>
+<rect width="320" height="240" fill="#000000"/>
+<rect x="0" y="0" width="320" height="48" fill="#181c18"/>
+<line x1="0" y1="47" x2="320" y2="47" stroke="#393c39" stroke-width="1"/>
+<rect x="0" y="48" width="320" height="2" fill="#00bfff"/>
+<text x="12" y="26" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" text-anchor="start">CYD MIDI</text>
+<text x="14" y="40" fill="#9c9c9c" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="500" text-anchor="start">controller</text>
+<rect x="222" y="11" width="86" height="24" fill="#280000" rx="5" ry="5" stroke="#ff0000" stroke-width="1"/>
+<circle cx="236" cy="23" r="4" fill="#ff0000"/>
+<text x="246" y="28" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="start">WAITING</text>
+<rect x="8" y="64" width="58" height="62" fill="#000000" rx="6" ry="6"/>
+<rect x="7" y="62" width="58" height="62" fill="#101410" rx="6" ry="6" stroke="#393c39" stroke-width="1"/>
+<rect x="18" y="69" width="36" height="36" fill="#ff2ca3" rx="6" ry="6"/>
+<rect x="26" y="81" width="3" height="14" fill="#000000"/>
+<rect x="30" y="81" width="3" height="14" fill="#000000"/>
+<rect x="34" y="81" width="3" height="14" fill="#000000"/>
+<rect x="38" y="81" width="3" height="14" fill="#000000"/>
+<rect x="42" y="81" width="3" height="14" fill="#000000"/>
+<text x="36.0" y="117" fill="#9c9c9c" font-family="Arial, Helvetica, sans-serif" font-size="8" font-weight="700" text-anchor="middle">KEYS</text>
+<rect x="70" y="64" width="58" height="62" fill="#000000" rx="6" ry="6"/>
+<rect x="69" y="62" width="58" height="62" fill="#101410" rx="6" ry="6" stroke="#393c39" stroke-width="1"/>
+<rect x="80" y="69" width="36" height="36" fill="#ffae00" rx="6" ry="6"/>
+<rect x="88" y="79" width="4" height="4" fill="#000000"/>
+<rect x="93" y="79" width="4" height="4" fill="#000000"/>
+<rect x="98" y="79" width="4" height="4" fill="#000000"/>
+<rect x="103" y="79" width="4" height="4" fill="#000000"/>
+<rect x="88" y="85" width="4" height="4" fill="#000000"/>
+<rect x="93" y="85" width="4" height="4" fill="#000000"/>
+<rect x="98" y="85" width="4" height="4" fill="#000000"/>
+<rect x="103" y="85" width="4" height="4" fill="#000000"/>
+<rect x="88" y="91" width="4" height="4" fill="#000000"/>
+<rect x="93" y="91" width="4" height="4" fill="#000000"/>
+<rect x="98" y="91" width="4" height="4" fill="#000000"/>
+<rect x="103" y="91" width="4" height="4" fill="#000000"/>
+<text x="98.0" y="117" fill="#9c9c9c" font-family="Arial, Helvetica, sans-serif" font-size="8" font-weight="700" text-anchor="middle">BEATS</text>
+<rect x="132" y="64" width="58" height="62" fill="#000000" rx="6" ry="6"/>
+<rect x="131" y="62" width="58" height="62" fill="#101410" rx="6" ry="6" stroke="#393c39" stroke-width="1"/>
+<rect x="142" y="69" width="36" height="36" fill="#bfff00" rx="6" ry="6"/>
+<circle cx="160.0" cy="87.0" r="12" fill="none" stroke="#000000" stroke-width="2"/>
+<circle cx="154.0" cy="83.0" r="2" fill="#000000"/>
+<circle cx="165.0" cy="89.0" r="2" fill="#000000"/>
+<circle cx="158.0" cy="94.0" r="2" fill="#000000"/>
+<text x="160.0" y="117" fill="#9c9c9c" font-family="Arial, Helvetica, sans-serif" font-size="8" font-weight="700" text-anchor="middle">ZEN</text>
+<rect x="194" y="64" width="58" height="62" fill="#000000" rx="6" ry="6"/>
+<rect x="193" y="62" width="58" height="62" fill="#101410" rx="6" ry="6" stroke="#393c39" stroke-width="1"/>
+<rect x="204" y="69" width="36" height="36" fill="#00fa80" rx="6" ry="6"/>
+<circle cx="216.0" cy="79.0" r="2" fill="#000000"/>
+<circle cx="225.0" cy="85.0" r="2" fill="#000000"/>
+<rect x="212.0" y="95.0" width="9" height="2" fill="#000000"/>
+<rect x="225.0" y="91.0" width="8" height="2" fill="#000000"/>
+<text x="222.0" y="117" fill="#9c9c9c" font-family="Arial, Helvetica, sans-serif" font-size="8" font-weight="700" text-anchor="middle">DROP</text>
+<rect x="256" y="64" width="58" height="62" fill="#000000" rx="6" ry="6"/>
+<rect x="255" y="62" width="58" height="62" fill="#101410" rx="6" ry="6" stroke="#393c39" stroke-width="1"/>
+<rect x="266" y="69" width="36" height="36" fill="#369bff" rx="6" ry="6"/>
+<circle cx="276.0" cy="81.0" r="2" fill="#000000"/>
+<circle cx="283.0" cy="84.0" r="2" fill="#000000"/>
+<circle cx="291.0" cy="89.0" r="2" fill="#000000"/>
+<circle cx="280.0" cy="94.0" r="2" fill="#000000"/>
+<text x="284.0" y="117" fill="#9c9c9c" font-family="Arial, Helvetica, sans-serif" font-size="8" font-weight="700" text-anchor="middle">RNG</text>
+<rect x="8" y="136" width="58" height="62" fill="#000000" rx="6" ry="6"/>
+<rect x="7" y="134" width="58" height="62" fill="#101410" rx="6" ry="6" stroke="#393c39" stroke-width="1"/>
+<rect x="18" y="141" width="36" height="36" fill="#8c4fff" rx="6" ry="6"/>
+<line x1="28.0" y1="159.0" x2="44.0" y2="159.0" stroke="#000000" stroke-width="2"/>
+<line x1="36.0" y1="151.0" x2="36.0" y2="167.0" stroke="#000000" stroke-width="2"/>
+<circle cx="36.0" cy="159.0" r="3" fill="#000000"/>
+<text x="36.0" y="189" fill="#9c9c9c" font-family="Arial, Helvetica, sans-serif" font-size="8" font-weight="700" text-anchor="middle">XY PAD</text>
+<rect x="70" y="136" width="58" height="62" fill="#000000" rx="6" ry="6"/>
+<rect x="69" y="134" width="58" height="62" fill="#101410" rx="6" ry="6" stroke="#393c39" stroke-width="1"/>
+<rect x="80" y="141" width="36" height="36" fill="#ff00ff" rx="6" ry="6"/>
+<circle cx="90.0" cy="166.0" r="2" fill="#000000"/>
+<circle cx="95.0" cy="162.0" r="2" fill="#000000"/>
+<circle cx="100.0" cy="158.0" r="2" fill="#000000"/>
+<circle cx="105.0" cy="154.0" r="2" fill="#000000"/>
+<text x="98.0" y="189" fill="#9c9c9c" font-family="Arial, Helvetica, sans-serif" font-size="8" font-weight="700" text-anchor="middle">ARP</text>
+<rect x="132" y="136" width="58" height="62" fill="#000000" rx="6" ry="6"/>
+<rect x="131" y="134" width="58" height="62" fill="#101410" rx="6" ry="6" stroke="#393c39" stroke-width="1"/>
+<rect x="142" y="141" width="36" height="36" fill="#00bfff" rx="6" ry="6"/>
+<rect x="149" y="150" width="5" height="5" fill="none" stroke="#000000" stroke-width="1"/>
+<rect x="155" y="150" width="5" height="5" fill="none" stroke="#000000" stroke-width="1"/>
+<rect x="161" y="150" width="5" height="5" fill="none" stroke="#000000" stroke-width="1"/>
+<rect x="167" y="150" width="5" height="5" fill="none" stroke="#000000" stroke-width="1"/>
+<rect x="149" y="157" width="5" height="5" fill="none" stroke="#000000" stroke-width="1"/>
+<rect x="155" y="157" width="5" height="5" fill="none" stroke="#000000" stroke-width="1"/>
+<rect x="161" y="157" width="5" height="5" fill="none" stroke="#000000" stroke-width="1"/>
+<rect x="167" y="157" width="5" height="5" fill="none" stroke="#000000" stroke-width="1"/>
+<rect x="149" y="164" width="5" height="5" fill="none" stroke="#000000" stroke-width="1"/>
+<rect x="155" y="164" width="5" height="5" fill="none" stroke="#000000" stroke-width="1"/>
+<rect x="161" y="164" width="5" height="5" fill="none" stroke="#000000" stroke-width="1"/>
+<rect x="167" y="164" width="5" height="5" fill="none" stroke="#000000" stroke-width="1"/>
+<text x="160.0" y="189" fill="#9c9c9c" font-family="Arial, Helvetica, sans-serif" font-size="8" font-weight="700" text-anchor="middle">GRID</text>
+<rect x="194" y="136" width="58" height="62" fill="#000000" rx="6" ry="6"/>
+<rect x="193" y="134" width="58" height="62" fill="#101410" rx="6" ry="6" stroke="#393c39" stroke-width="1"/>
+<rect x="204" y="141" width="36" height="36" fill="#ffdf00" rx="6" ry="6"/>
+<line x1="214.0" y1="154.0" x2="230.0" y2="154.0" stroke="#000000" stroke-width="3"/>
+<line x1="214.0" y1="159.0" x2="230.0" y2="159.0" stroke="#000000" stroke-width="3"/>
+<line x1="214.0" y1="164.0" x2="230.0" y2="164.0" stroke="#000000" stroke-width="3"/>
+<text x="222.0" y="189" fill="#9c9c9c" font-family="Arial, Helvetica, sans-serif" font-size="8" font-weight="700" text-anchor="middle">CHORD</text>
+<rect x="256" y="136" width="58" height="62" fill="#000000" rx="6" ry="6"/>
+<rect x="255" y="134" width="58" height="62" fill="#101410" rx="6" ry="6" stroke="#393c39" stroke-width="1"/>
+<rect x="266" y="141" width="36" height="36" fill="#97ffff" rx="6" ry="6"/>
+<polyline points="271,159.0 273,164.02149263629667 275,165.99701522129052 277,163.72824226385805 279,158.59138099600693 281,153.7023825328445 283,152.02684773814912 285,154.58113353489375 287,159.81584443395346 289,164.55567504694406 291,165.92550772636366 293,163.09442035024233 295,157.77971253143912 297,153.20521471640043" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="284.0" y="189" fill="#9c9c9c" font-family="Arial, Helvetica, sans-serif" font-size="8" font-weight="700" text-anchor="middle">LFO</text>
+<text x="160" y="228" fill="#9c9c9c" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="500" text-anchor="middle">Open MIDIberry or BLE-MIDI Connect</text>
+</svg>

@@ -18,7 +18,6 @@ bool sequencePattern[SEQ_TRACKS][SEQ_STEPS];
 int currentStep = 0;
 unsigned long lastStepTime = 0;
 unsigned long noteOffTime[SEQ_TRACKS] = {0};
-int bpm = 120;
 int stepInterval;
 bool sequencerPlaying = false;
 
@@ -33,8 +32,7 @@ void playSequencerStep();
 
 // Implementations
 void initializeSequencerMode() {
-  bpm = 120;
-  stepInterval = 60000 / bpm / 4; // 16th notes
+  stepInterval = 60000 / performance.bpm / 4; // 16th notes
   sequencerPlaying = false;
   currentStep = 0;
   
@@ -47,8 +45,9 @@ void initializeSequencerMode() {
 }
 
 void drawSequencerMode() {
+  stepInterval = 60000 / performance.bpm / 4;
   tft.fillScreen(THEME_BG);
-  drawHeader("BEATS", String(bpm) + " BPM");
+  drawHeader("BEATS", String(performance.bpm) + " BPM");
   
   drawSequencerGrid();
   
@@ -63,7 +62,7 @@ void drawSequencerMode() {
   // BPM display
   tft.fillRoundRect(260, 202, 52, 30, 5, THEME_PANEL);
   tft.setTextColor(THEME_TEXT, THEME_PANEL);
-  tft.drawCentreString(String(bpm), 286, 209, 2);
+  tft.drawCentreString(String(performance.bpm), 286, 209, 2);
 }
 
 void drawSequencerGrid() {
@@ -112,7 +111,7 @@ void handleSequencerMode() {
     int drumNotes[] = {36, 38, 42, 46};
     for (int track = 0; track < SEQ_TRACKS; track++) {
       if (noteOffTime[track] > 0) {
-        sendMIDI(0x80, drumNotes[track], 0);
+        sendNote(performance.drumsChannel, drumNotes[track], 0, false);
         noteOffTime[track] = 0;
       }
     }
@@ -145,15 +144,15 @@ void handleSequencerMode() {
     }
     
     if (isButtonPressed(148, 202, 46, 30)) {
-      bpm = max(60, bpm - 1);
-      stepInterval = 60000 / bpm / 4;
+      nudgeGlobalBpm(-1);
+      stepInterval = 60000 / performance.bpm / 4;
       drawSequencerMode();
       return;
     }
     
     if (isButtonPressed(202, 202, 46, 30)) {
-      bpm = min(200, bpm + 1);
-      stepInterval = 60000 / bpm / 4;
+      nudgeGlobalBpm(1);
+      stepInterval = 60000 / performance.bpm / 4;
       drawSequencerMode();
       return;
     }
@@ -190,7 +189,7 @@ void updateSequencer() {
   int drumNotes[] = {36, 38, 42, 46};
   for (int track = 0; track < SEQ_TRACKS; track++) {
     if (noteOffTime[track] > 0 && now >= noteOffTime[track]) {
-      sendMIDI(0x80, drumNotes[track], 0);
+      sendNote(performance.drumsChannel, drumNotes[track], 0, false);
       noteOffTime[track] = 0;
     }
   }
@@ -214,7 +213,7 @@ void playSequencerStep() {
   for (int track = 0; track < SEQ_TRACKS; track++) {
     if (sequencePattern[track][currentStep]) {
       // Turn on note
-      sendMIDI(0x90, drumNotes[track], 100);
+      sendNote(performance.drumsChannel, drumNotes[track], 100, true);
       // Schedule note off
       noteOffTime[track] = now + noteLengths[track];
     }

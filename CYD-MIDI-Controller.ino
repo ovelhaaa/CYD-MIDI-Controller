@@ -37,6 +37,7 @@ TouchState touch;
 
 // App state
 AppMode currentMode = MENU;
+PerformanceState performance;
 
 // Forward declarations
 void drawMenu();
@@ -99,10 +100,7 @@ class MIDICallbacks: public BLEServerCallbacks {
         drawMenu(); // Redraw menu to show "BLE WAITING..."
       }
       updateStatus();
-      // Stop all notes
-      for (int i = 0; i < 128; i++) {
-        sendMIDI(0x80, i, 0);
-      }
+      stopAllModes();
       // Restart advertising so new connections can be made
       BLEDevice::startAdvertising();
     }

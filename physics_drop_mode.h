@@ -37,8 +37,6 @@ DropBall dropBalls[MAX_DROP_BALLS];
 Platform platforms[MAX_PLATFORMS];
 int numActiveDropBalls = 0;
 int numPlatforms = 0;
-int dropScale = 0;
-int dropKey = 0;
 int dropOctave = 4;
 bool platformMode = false; // false = drop mode, true = platform edit mode
 
@@ -52,13 +50,12 @@ void updatePhysics();
 void spawnDropBall(int x, int y);
 void addPlatform(int x, int y);
 void checkPlatformCollisions();
+void refreshPlatformNotes();
 
 // Implementations
 void initializePhysicsDropMode() {
   numActiveDropBalls = 0;
   numPlatforms = 0;
-  dropScale = 0;
-  dropKey = 0;
   dropOctave = 4;
   platformMode = false;
   
@@ -72,6 +69,7 @@ void initializePhysicsDropMode() {
   platforms[1] = {180, 140, 50, 8, -0.3, THEME_SECONDARY, false, 64, "E4", 0};
   platforms[2] = {120, 120, 40, 8, 0.1, THEME_ACCENT, false, 67, "G4", 0};
   numPlatforms = 3;
+  refreshPlatformNotes();
 }
 
 void drawPhysicsDropMode() {
@@ -90,10 +88,9 @@ void drawPhysicsDropMode() {
   drawRoundButton(290, 202, 22, 30, "O", THEME_PRIMARY);
   
   // Status display
-  String keyName = getNoteNameFromMIDI(dropKey);
   tft.fillRoundRect(8, 187, 304, 12, 3, THEME_PANEL);
   tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
-  tft.drawCentreString(keyName + " " + scales[dropScale].name + "  Oct " + String(dropOctave) +
+  tft.drawCentreString(getRootName() + " " + scales[performance.scale].name + "  Oct " + String(dropOctave) +
                        "  Balls " + String(numActiveDropBalls), 160, 189, 1);
   
   drawPlatforms();
@@ -171,20 +168,23 @@ void handlePhysicsDropMode() {
     
     // Scale button
     if (isButtonPressed(128, 202, 58, 30)) {
-      dropScale = (dropScale + 1) % NUM_SCALES;
+      nudgeGlobalScale(1);
+      refreshPlatformNotes();
       drawPhysicsDropMode();
       return;
     }
     
     // Key controls
     if (isButtonPressed(194, 202, 42, 30)) {
-      dropKey = (dropKey - 1 + 12) % 12;
+      nudgeGlobalRoot(-1);
+      refreshPlatformNotes();
       drawPhysicsDropMode();
       return;
     }
     
     if (isButtonPressed(242, 202, 42, 30)) {
-      dropKey = (dropKey + 1) % 12;
+      nudgeGlobalRoot(1);
+      refreshPlatformNotes();
       drawPhysicsDropMode();
       return;
     }
@@ -192,6 +192,7 @@ void handlePhysicsDropMode() {
     // Octave button
     if (isButtonPressed(290, 202, 22, 30)) {
       dropOctave = (dropOctave == 7) ? 2 : dropOctave + 1;
+      refreshPlatformNotes();
       drawPhysicsDropMode();
       return;
     }
@@ -227,7 +228,7 @@ void spawnDropBall(int x, int y) {
       dropBalls[i].size = random(3, 6);
       dropBalls[i].active = true;
       dropBalls[i].spawnTime = millis();
-      dropBalls[i].note = getNoteInScale(dropScale, random(8), dropOctave) + dropKey;
+      dropBalls[i].note = getNoteInScale(performance.scale, random(8), dropOctave);
       dropBalls[i].noteName = getNoteNameFromMIDI(dropBalls[i].note);
       numActiveDropBalls++;
       break;
@@ -245,7 +246,7 @@ void addPlatform(int x, int y) {
   platforms[numPlatforms].angle = random(-5, 6) / 10.0; // -0.5 to 0.5 radians
   platforms[numPlatforms].color = random(0x2000, 0xFFFF);
   platforms[numPlatforms].active = false;
-  platforms[numPlatforms].note = getNoteInScale(dropScale, numPlatforms % 8, dropOctave) + dropKey;
+  platforms[numPlatforms].note = getNoteInScale(performance.scale, numPlatforms % 8, dropOctave);
   platforms[numPlatforms].noteName = getNoteNameFromMIDI(platforms[numPlatforms].note);
   platforms[numPlatforms].activeTime = 0;
   numPlatforms++;
@@ -308,8 +309,8 @@ void updatePhysics() {
       
       // Ground hit - play note
       if (deviceConnected && abs(dropBalls[i].vy) > 1) {
-        sendMIDI(0x90, dropBalls[i].note, random(60, 100));
-        sendMIDI(0x80, dropBalls[i].note, 0);
+        sendNote(performance.generativeChannel, dropBalls[i].note, random(60, 100), true);
+        sendNote(performance.generativeChannel, dropBalls[i].note, 0, false);
       }
     }
   }
@@ -343,8 +344,8 @@ void checkPlatformCollisions() {
         
         // Play platform note
         if (deviceConnected && !platforms[p].active) {
-          sendMIDI(0x90, platforms[p].note, random(70, 110));
-          sendMIDI(0x80, platforms[p].note, 0);
+          sendNote(performance.generativeChannel, platforms[p].note, random(70, 110), true);
+          sendNote(performance.generativeChannel, platforms[p].note, 0, false);
           
           platforms[p].active = true;
           platforms[p].activeTime = millis();
@@ -353,6 +354,13 @@ void checkPlatformCollisions() {
         break;
       }
     }
+  }
+}
+
+void refreshPlatformNotes() {
+  for (int i = 0; i < numPlatforms; i++) {
+    platforms[i].note = getNoteInScale(performance.scale, i % 8, dropOctave);
+    platforms[i].noteName = getNoteNameFromMIDI(platforms[i].note);
   }
 }
 

@@ -163,7 +163,7 @@ void handleGridPianoMode() {
   if (pressedNote != gridPressedNote) {
     // Turn off old note
     if (gridPressedNote != -1) {
-      sendMIDI(0x80, gridPressedNote, 0);
+      sendNote(performance.keysChannel, gridPressedNote, 0, false);
       // Redraw old cell
       for (int row = 0; row < GRID_ROWS; row++) {
         for (int col = 0; col < GRID_COLS; col++) {
@@ -177,7 +177,7 @@ void handleGridPianoMode() {
     
     // Turn on new note
     if (pressedNote != -1 && deviceConnected) {
-      sendMIDI(0x90, pressedNote, 100);
+      sendNote(performance.keysChannel, pressedNote, 100, true);
     }
     
     gridPressedNote = pressedNote;
