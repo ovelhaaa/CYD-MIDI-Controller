@@ -26,12 +26,16 @@ struct Wall {
   uint16_t color;
   bool active;
   unsigned long activeTime;
+  unsigned long noteOffTime;
+  int flashVelocity;
   int side; // 0=top, 1=right, 2=bottom, 3=left
 };
 
 #define NUM_WALLS 24  // 8 top + 8 bottom + 4 left + 4 right
 Wall walls[NUM_WALLS];
 int ballOctave = 4;
+int zenDensity = 65;
+int zenNoteLength = 240;
 
 // Function declarations
 void initializeBouncingBallMode();
@@ -44,10 +48,21 @@ void updateBalls();
 void drawBalls();
 void drawWalls();
 void checkWallCollisions();
+void drawZenButton(int x, int y, int w, int h, String text, uint16_t color, bool pressed = false);
+void drawZenControls();
+void applyZenCalm();
+void applyZenChaos();
+void updateZenNotes();
+void triggerZenWall(int wallIndex, float speed);
+void stopZenNotes();
+int getZenWallNote(int segment, int side);
+int getZenVelocity(float speed);
 
 // Implementations
 void initializeBouncingBallMode() {
   ballOctave = 4;
+  zenDensity = 65;
+  zenNoteLength = 240;
   numActiveBalls = 1;
   initializeBalls();
   initializeWalls();
@@ -55,27 +70,56 @@ void initializeBouncingBallMode() {
 
 void drawBouncingBallMode() {
   tft.fillScreen(THEME_BG);
-  drawHeader("ZEN", "Ambient Bouncing");
+  drawHeader("ZEN", "Ambient Generative");
 
   tft.fillRoundRect(44, 54, 238, 132, 6, THEME_PANEL);
   tft.drawRoundRect(44, 54, 238, 132, 6, THEME_BORDER);
-  
-  // Controls
-  drawRoundButton(8, 202, 44, 30, "ADD", THEME_SUCCESS);
-  drawRoundButton(58, 202, 54, 30, "RESET", THEME_WARNING);
-  drawRoundButton(120, 202, 58, 30, "SCALE", THEME_ACCENT);
-  drawRoundButton(186, 202, 42, 30, "KEY-", THEME_SECONDARY);
-  drawRoundButton(234, 202, 42, 30, "KEY+", THEME_SECONDARY);
-  drawRoundButton(282, 202, 30, 30, "O", THEME_PRIMARY);
-  
-  // Status display
+
   tft.fillRoundRect(8, 188, 304, 12, 3, THEME_PANEL);
   tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
-  tft.drawCentreString(getRootName() + " " + scales[performance.scale].name + "  Oct " + String(ballOctave) +
-                       "  Balls " + String(numActiveBalls), 160, 190, 1);
+  tft.drawCentreString(getRootName() + " " + scales[performance.scale].name +
+                       "  D" + String(zenDensity) + " L" + String(zenNoteLength) +
+                       "  B" + String(numActiveBalls), 160, 190, 1);
   
   drawWalls();
   drawBalls();
+  drawZenControls();
+}
+
+void drawZenButton(int x, int y, int w, int h, String text, uint16_t color, bool pressed) {
+  uint16_t bgColor = pressed ? color : THEME_PANEL;
+  uint16_t textColor = pressed ? THEME_BG : THEME_TEXT;
+
+  if (!pressed) {
+    tft.fillRoundRect(x + 1, y + 2, w, h, 4, THEME_BG);
+  }
+  tft.fillRoundRect(x, y + (pressed ? 1 : 0), w, h, 4, bgColor);
+  tft.drawRoundRect(x, y + (pressed ? 1 : 0), w, h, 4, color);
+  tft.setTextColor(textColor, bgColor);
+  tft.drawCentreString(text, x + w / 2, y + h / 2 - 4 + (pressed ? 1 : 0), 1);
+}
+
+void drawZenControls() {
+  tft.fillRect(0, 200, 320, 40, THEME_BG);
+
+  drawZenButton(8, 202, 36, 16, "ADD", THEME_SUCCESS);
+  drawZenButton(50, 202, 44, 16, "CALM", THEME_PRIMARY);
+  drawZenButton(100, 202, 48, 16, "CHAOS", THEME_ERROR);
+  drawZenButton(156, 202, 26, 16, "D-", THEME_SECONDARY);
+  drawZenButton(188, 202, 26, 16, "D+", THEME_SECONDARY);
+  drawZenButton(222, 202, 34, 16, "L-", THEME_SECONDARY);
+  drawZenButton(264, 202, 34, 16, "L+", THEME_SECONDARY);
+
+  drawZenButton(8, 222, 44, 16, "RESET", THEME_WARNING);
+  drawZenButton(60, 222, 46, 16, "SCALE", THEME_ACCENT);
+  drawZenButton(114, 222, 34, 16, "KEY-", THEME_SECONDARY);
+  drawZenButton(156, 222, 34, 16, "KEY+", THEME_SECONDARY);
+  drawZenButton(198, 222, 28, 16, "O", THEME_PRIMARY);
+
+  tft.fillRoundRect(236, 222, 76, 16, 4, THEME_PANEL);
+  tft.drawRoundRect(236, 222, 76, 16, 4, THEME_BORDER);
+  tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
+  tft.drawCentreString("Oct " + String(ballOctave), 274, 226, 1);
 }
 
 void initializeBalls() {
@@ -103,10 +147,12 @@ void initializeWalls() {
     walls[wallIndex].y = 60;
     walls[wallIndex].w = 28;
     walls[wallIndex].h = 3;
-    walls[wallIndex].note = getNoteInScale(performance.scale, i, ballOctave);
+    walls[wallIndex].note = getZenWallNote(i, 0);
     walls[wallIndex].noteName = getNoteNameFromMIDI(walls[wallIndex].note);
     walls[wallIndex].color = THEME_PRIMARY;
     walls[wallIndex].active = false;
+    walls[wallIndex].noteOffTime = 0;
+    walls[wallIndex].flashVelocity = 0;
     walls[wallIndex].side = 0;
     wallIndex++;
   }
@@ -117,10 +163,12 @@ void initializeWalls() {
     walls[wallIndex].y = 63 + i * 28;
     walls[wallIndex].w = 3;
     walls[wallIndex].h = 28;
-    walls[wallIndex].note = getNoteInScale(performance.scale, i, ballOctave + 1);
+    walls[wallIndex].note = getZenWallNote(i, 1);
     walls[wallIndex].noteName = getNoteNameFromMIDI(walls[wallIndex].note);
     walls[wallIndex].color = THEME_SECONDARY;
     walls[wallIndex].active = false;
+    walls[wallIndex].noteOffTime = 0;
+    walls[wallIndex].flashVelocity = 0;
     walls[wallIndex].side = 1;
     wallIndex++;
   }
@@ -131,10 +179,12 @@ void initializeWalls() {
     walls[wallIndex].y = 177;
     walls[wallIndex].w = 28;
     walls[wallIndex].h = 3;
-    walls[wallIndex].note = getNoteInScale(performance.scale, 7 - i, ballOctave);
+    walls[wallIndex].note = getZenWallNote(7 - i, 2);
     walls[wallIndex].noteName = getNoteNameFromMIDI(walls[wallIndex].note);
     walls[wallIndex].color = THEME_ACCENT;
     walls[wallIndex].active = false;
+    walls[wallIndex].noteOffTime = 0;
+    walls[wallIndex].flashVelocity = 0;
     walls[wallIndex].side = 2;
     wallIndex++;
   }
@@ -145,10 +195,12 @@ void initializeWalls() {
     walls[wallIndex].y = 63 + i * 28;
     walls[wallIndex].w = 3;
     walls[wallIndex].h = 28;
-    walls[wallIndex].note = getNoteInScale(performance.scale, 3 - i, ballOctave + 1);
+    walls[wallIndex].note = getZenWallNote(3 - i, 3);
     walls[wallIndex].noteName = getNoteNameFromMIDI(walls[wallIndex].note);
     walls[wallIndex].color = THEME_WARNING;
     walls[wallIndex].active = false;
+    walls[wallIndex].noteOffTime = 0;
+    walls[wallIndex].flashVelocity = 0;
     walls[wallIndex].side = 3;
     wallIndex++;
   }
@@ -157,13 +209,14 @@ void initializeWalls() {
 void handleBouncingBallMode() {
   // Back button
   if (touch.justPressed && isButtonPressed(10, 10, 50, 25)) {
+    stopZenNotes();
     exitToMenu();
     return;
   }
   
   if (touch.justPressed) {
     // Add ball button
-    if (isButtonPressed(8, 202, 44, 30)) {
+    if (isButtonPressed(8, 202, 36, 16)) {
       if (numActiveBalls < MAX_BALLS) {
         numActiveBalls++;
         initializeBalls();
@@ -171,9 +224,46 @@ void handleBouncingBallMode() {
       }
       return;
     }
+
+    if (isButtonPressed(50, 202, 44, 16)) {
+      applyZenCalm();
+      drawBouncingBallMode();
+      return;
+    }
+
+    if (isButtonPressed(100, 202, 48, 16)) {
+      applyZenChaos();
+      drawBouncingBallMode();
+      return;
+    }
+
+    if (isButtonPressed(156, 202, 26, 16)) {
+      zenDensity = max(10, zenDensity - 10);
+      drawBouncingBallMode();
+      return;
+    }
+
+    if (isButtonPressed(188, 202, 26, 16)) {
+      zenDensity = min(100, zenDensity + 10);
+      drawBouncingBallMode();
+      return;
+    }
+
+    if (isButtonPressed(222, 202, 34, 16)) {
+      zenNoteLength = max(60, zenNoteLength - 60);
+      drawBouncingBallMode();
+      return;
+    }
+
+    if (isButtonPressed(264, 202, 34, 16)) {
+      zenNoteLength = min(900, zenNoteLength + 60);
+      drawBouncingBallMode();
+      return;
+    }
     
     // Reset button
-    if (isButtonPressed(58, 202, 54, 30)) {
+    if (isButtonPressed(8, 222, 44, 16)) {
+      stopZenNotes();
       numActiveBalls = 1;
       initializeBalls();
       drawBouncingBallMode();
@@ -181,7 +271,8 @@ void handleBouncingBallMode() {
     }
     
     // Scale button
-    if (isButtonPressed(120, 202, 58, 30)) {
+    if (isButtonPressed(60, 222, 46, 16)) {
+      stopZenNotes();
       nudgeGlobalScale(1);
       initializeWalls();
       drawBouncingBallMode();
@@ -189,14 +280,16 @@ void handleBouncingBallMode() {
     }
     
     // Key controls
-    if (isButtonPressed(186, 202, 42, 30)) {
+    if (isButtonPressed(114, 222, 34, 16)) {
+      stopZenNotes();
       nudgeGlobalRoot(-1);
       initializeWalls();
       drawBouncingBallMode();
       return;
     }
     
-    if (isButtonPressed(234, 202, 42, 30)) {
+    if (isButtonPressed(156, 222, 34, 16)) {
+      stopZenNotes();
       nudgeGlobalRoot(1);
       initializeWalls();
       drawBouncingBallMode();
@@ -204,7 +297,8 @@ void handleBouncingBallMode() {
     }
     
     // Octave button
-    if (isButtonPressed(282, 202, 30, 30)) {
+    if (isButtonPressed(198, 222, 28, 16)) {
+      stopZenNotes();
       ballOctave = (ballOctave == 7) ? 2 : ballOctave + 1;
       initializeWalls();
       drawBouncingBallMode();
@@ -217,6 +311,8 @@ void handleBouncingBallMode() {
 }
 
 void updateBouncingBall() {
+  updateZenNotes();
+
   // Smooth 60 FPS animation
   static unsigned long lastUpdate = 0;
   if (millis() - lastUpdate > 16) {
@@ -280,7 +376,7 @@ void drawWalls() {
     if (walls[i].active) {
       unsigned long elapsed = millis() - walls[i].activeTime;
       if (elapsed < 200) {
-        color = THEME_TEXT; // Bright white flash
+        color = walls[i].flashVelocity > 105 ? THEME_TEXT : THEME_ACCENT;
       } else {
         walls[i].active = false;
       }
@@ -352,10 +448,8 @@ void checkWallCollisions() {
       }
       
       if (collision) {
-        if (deviceConnected) {
-          sendNote(performance.generativeChannel, walls[w].note, random(70, 110), true);
-          sendNote(performance.generativeChannel, walls[w].note, 0, false);
-        }
+        float speed = sqrt((balls[b].vx * balls[b].vx) + (balls[b].vy * balls[b].vy));
+        triggerZenWall(w, speed);
         
         walls[w].active = true;
         walls[w].activeTime = millis();
@@ -369,6 +463,78 @@ void checkWallCollisions() {
     lastX[b] = balls[b].x;
     lastY[b] = balls[b].y;
   }
+}
+
+void triggerZenWall(int wallIndex, float speed) {
+  if (random(100) >= zenDensity) return;
+
+  int velocity = getZenVelocity(speed);
+  walls[wallIndex].flashVelocity = velocity;
+
+  if (deviceConnected) {
+    if (walls[wallIndex].noteOffTime > 0) {
+      sendNote(performance.generativeChannel, walls[wallIndex].note, 0, false);
+    }
+    sendNote(performance.generativeChannel, walls[wallIndex].note, velocity, true);
+    walls[wallIndex].noteOffTime = millis() + zenNoteLength + (velocity * 2);
+  }
+}
+
+void updateZenNotes() {
+  if (!deviceConnected) return;
+
+  unsigned long now = millis();
+  for (int i = 0; i < NUM_WALLS; i++) {
+    if (walls[i].noteOffTime > 0 && now >= walls[i].noteOffTime) {
+      sendNote(performance.generativeChannel, walls[i].note, 0, false);
+      walls[i].noteOffTime = 0;
+    }
+  }
+}
+
+void stopZenNotes() {
+  for (int i = 0; i < NUM_WALLS; i++) {
+    if (walls[i].noteOffTime > 0) {
+      sendNote(performance.generativeChannel, walls[i].note, 0, false);
+      walls[i].noteOffTime = 0;
+    }
+  }
+}
+
+void applyZenCalm() {
+  stopZenNotes();
+  numActiveBalls = 1;
+  zenDensity = 35;
+  zenNoteLength = 480;
+  initializeBalls();
+  for (int i = 0; i < MAX_BALLS; i++) {
+    balls[i].vx *= 0.55;
+    balls[i].vy *= 0.55;
+  }
+}
+
+void applyZenChaos() {
+  stopZenNotes();
+  numActiveBalls = MAX_BALLS;
+  zenDensity = 95;
+  zenNoteLength = 120;
+  initializeBalls();
+  for (int i = 0; i < MAX_BALLS; i++) {
+    balls[i].vx *= 1.45;
+    balls[i].vy *= 1.45;
+  }
+}
+
+int getZenWallNote(int segment, int side) {
+  int stableDegrees[] = {0, 4, 2, 5, 4, 0, 5, 2, 3, 1, 6, 4};
+  int degree = stableDegrees[(segment + side * 2) % 12];
+  int octave = ballOctave + (side == 1 || side == 3 ? 1 : 0);
+  return getNoteInScale(performance.scale, degree, octave);
+}
+
+int getZenVelocity(float speed) {
+  int velocity = 56 + (int)(speed * 24.0);
+  return constrain(velocity, 48, 118);
 }
 
 #endif

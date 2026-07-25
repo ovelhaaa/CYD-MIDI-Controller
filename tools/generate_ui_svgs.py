@@ -156,7 +156,7 @@ def make_menu():
 
 def make_keys():
     s = SVG("KEYS")
-    header(s, "KEYS", "Major Key C-1")
+    header(s, "KEYS", "C Major  1")
     for row in range(2):
         for key in range(10):
             x, y, w, h = key * 32, 52 + row * 60, 29, 56
@@ -164,23 +164,31 @@ def make_keys():
             s.rect(x + 1, y + 1, w, h, fill, COLORS["border"], 4)
             s.text(["C3", "D3", "E3", "F3", "G3", "A3", "B3", "C4", "D4", "E4"][key], x + 16, y + 28, 10, COLORS["text"], "middle", "700")
             s.text("LOW" if row == 0 else "HIGH", x + 16, y + 47, 6, COLORS["dim"], "middle")
-    for args in [(8,178,46,30,"OCT-",COLORS["secondary"]), (60,178,46,30,"OCT+",COLORS["secondary"]), (116,178,66,30,"SCALE",COLORS["accent"]), (190,178,46,30,"KEY-",COLORS["warning"]), (242,178,46,30,"KEY+",COLORS["warning"])]:
+    for args in [
+        (8, 174, 30, 18, "O-", COLORS["secondary"]),
+        (44, 174, 30, 18, "O+", COLORS["secondary"]),
+        (82, 174, 44, 18, "1", COLORS["accent"]),
+        (134, 174, 44, 18, "TAP", COLORS["secondary"]),
+        (186, 174, 34, 18, "K-", COLORS["warning"]),
+        (228, 174, 34, 18, "K+", COLORS["warning"]),
+        (270, 174, 42, 18, "SCALE", COLORS["accent"]),
+    ]:
         button(s, *args)
-    s.rect(8, 214, 304, 18, COLORS["panel"], r=4)
-    s.text("Oct 4  Major  Root C-1", 160, 227, 9, COLORS["dim"], "middle")
+    s.rect(8, 204, 304, 28, COLORS["panel"], COLORS["border"], 5)
+    s.text("Oct 4  Vel 100  1  C Major", 160, 222, 8, COLORS["dim"], "middle")
     return s.finish()
 
 
 def make_beats():
     s = SVG("BEATS")
-    header(s, "BEATS", "FOUR  120 BPM")
+    header(s, "BEATS", "FOUR  120 BPM  SW50")
     s.rect(6, 46, 308, 114, COLORS["panel"], COLORS["border"], 6)
     labels = ["KCK", "SNR", "HAT", "OPN"]
     cols = [COLORS["error"], COLORS["warning"], COLORS["primary"], COLORS["accent"]]
     pattern = [
         {0: 2, 4: 2, 8: 2, 12: 2},
         {4: 2, 12: 2},
-        {2: 1, 6: 1, 10: 1, 14: 1},
+        {2: 1, 6: 1, 10: 1, 14: 3},
         {15: 1},
     ]
     for beat in range(4):
@@ -200,26 +208,43 @@ def make_beats():
             elif level == 2:
                 fill = COLORS["text"]
                 stroke = cols[tr]
+            elif level == 3:
+                fill = COLORS["surface"]
+                stroke = cols[tr]
             s.rect(x, y, 15, 24, fill, stroke, 3)
             if level == 2:
                 s.circle(x + 7.5, y + 12, 3, cols[tr])
+            if level == 3:
+                s.rect(x + 4, y + 6, 2, 12, cols[tr])
+                s.rect(x + 9, y + 6, 2, 12, cols[tr])
     for args in [
-        (8, 172, 50, 24, "PLAY", COLORS["success"]),
-        (64, 172, 44, 24, "PAT", COLORS["accent"]),
-        (114, 172, 44, 24, "FILL", COLORS["warning"]),
-        (164, 172, 44, 24, "CLR", COLORS["error"]),
-        (218, 172, 28, 24, "SW-", COLORS["secondary"]),
-        (288, 172, 24, 24, "+", COLORS["secondary"]),
-        (8, 206, 46, 26, "BPM-", COLORS["secondary"]),
-        (128, 206, 46, 26, "BPM+", COLORS["secondary"]),
+        (8, 166, 46, 18, "PLAY", COLORS["success"]),
+        (60, 166, 38, 18, "PAT", COLORS["accent"]),
+        (104, 166, 38, 18, "GEN", COLORS["primary"]),
+        (148, 166, 38, 18, "VAR", COLORS["warning"]),
+        (194, 166, 38, 18, "FILL", COLORS["warning"]),
+        (240, 166, 34, 18, "CLR", COLORS["error"]),
+        (284, 166, 28, 18, "MIX", COLORS["secondary"]),
+        (8, 188, 38, 18, "B-", COLORS["secondary"]),
+        (100, 188, 38, 18, "B+", COLORS["secondary"]),
+        (148, 188, 28, 18, "S-", COLORS["secondary"]),
+        (216, 188, 28, 18, "S+", COLORS["secondary"]),
+        (252, 188, 28, 18, "P-", COLORS["secondary"]),
+        (284, 188, 28, 18, "P+", COLORS["secondary"]),
+        (8, 210, 34, 18, "<", COLORS["accent"]),
+        (48, 210, 34, 18, ">", COLORS["accent"]),
+        (90, 210, 30, 18, "H-", COLORS["secondary"]),
+        (160, 210, 30, 18, "H+", COLORS["secondary"]),
     ]:
         button(s, *args)
-    s.rect(252, 172, 30, 24, COLORS["panel"], COLORS["border"], 5)
-    s.text("50", 267, 188, 8, COLORS["dim"], "middle", "700")
-    s.rect(62, 206, 58, 26, COLORS["panel"], COLORS["border"], 5)
-    s.text("120", 91, 224, 12, COLORS["text"], "middle", "700")
-    s.rect(188, 206, 124, 26, COLORS["panel"], COLORS["border"], 5)
-    s.text("CH 10  FOUR", 250, 224, 10, COLORS["dim"], "middle", "700")
+    s.rect(52, 188, 42, 18, COLORS["panel"], COLORS["border"], 5)
+    s.text("120", 73, 201, 8, COLORS["text"], "middle", "700")
+    s.rect(182, 188, 28, 18, COLORS["panel"], COLORS["border"], 5)
+    s.text("50", 196, 201, 8, COLORS["dim"], "middle", "700")
+    s.rect(126, 210, 28, 18, COLORS["panel"], COLORS["border"], 5)
+    s.text("6", 140, 223, 8, COLORS["warning"], "middle", "700")
+    s.rect(198, 210, 114, 18, COLORS["panel"], COLORS["border"], 5)
+    s.text("P92 D58 CH10", 255, 223, 8, COLORS["dim"], "middle", "700")
     return s.finish()
 
 
@@ -247,40 +272,64 @@ def make_xy():
 
 def make_chord():
     s = SVG("CHORD")
-    header(s, "CHORD MODE", "Major Diatonic")
-    s.rect(6, 58, 308, 112, COLORS["panel"], COLORS["border"], 6)
-    names = ["I", "ii", "iii", "IV", "V", "vi", "vii°", "I+"]
+    header(s, "CHORD", "C Major  TRI")
+    s.rect(6, 58, 308, 108, COLORS["panel"], COLORS["border"], 6)
+    names = ["I", "ii", "iii", "IV", "V", "vi", "vii", "I+"]
     roots = ["C3", "D3", "E3", "F3", "G3", "A3", "B3", "C4"]
+    types = ["maj", "min", "min", "maj", "maj", "min", "dim", "maj"]
     cols = [COLORS["primary"], COLORS["secondary"], COLORS["accent"], COLORS["success"], COLORS["warning"], COLORS["error"], "#ff00ff", "#00ff00"]
     for i in range(8):
         x = 10 + i * 39
-        s.rect(x, 66, 37, 96, COLORS["bg"], cols[i], 5)
-        s.text(names[i], x + 18.5, 103, 18, COLORS["text"], "middle", "700")
-        s.text(roots[i], x + 18.5, 132, 10, COLORS["dim"], "middle")
-    for args in [(8,184,46,30,"OCT-",COLORS["secondary"]), (60,184,46,30,"OCT+",COLORS["secondary"]), (122,184,68,30,"SCALE",COLORS["accent"]), (202,184,62,30,"CLEAR",COLORS["error"])]:
+        s.rect(x, 66, 37, 94, COLORS["bg"], cols[i], 5)
+        s.text(names[i], x + 18.5, 91, 12, COLORS["text"], "middle", "700")
+        s.text(roots[i], x + 18.5, 112, 8, COLORS["dim"], "middle")
+        s.text(types[i], x + 18.5, 132, 8, COLORS["dim"], "middle")
+    for args in [
+        (8, 182, 28, 18, "O-", COLORS["secondary"]),
+        (42, 182, 28, 18, "O+", COLORS["secondary"]),
+        (78, 182, 44, 18, "TRI", COLORS["accent"]),
+        (130, 182, 34, 18, "INV", COLORS["warning"]),
+        (172, 182, 42, 18, "TAP", COLORS["secondary"]),
+        (222, 182, 42, 18, "ROOT", COLORS["secondary"]),
+        (272, 182, 38, 18, "CLR", COLORS["error"]),
+        (8, 204, 34, 18, "K-", COLORS["secondary"]),
+        (50, 204, 34, 18, "K+", COLORS["secondary"]),
+        (94, 204, 52, 18, "SCALE", COLORS["accent"]),
+    ]:
         button(s, *args)
-    s.rect(8, 218, 304, 16, COLORS["panel"], r=4)
-    s.text("Oct 4  Classic piano chords", 160, 230, 8, COLORS["dim"], "middle")
+    s.rect(154, 204, 156, 18, COLORS["panel"], COLORS["border"], 4)
+    s.text("Oct 4 Inv 0", 232, 216, 8, COLORS["dim"], "middle")
     return s.finish()
 
 
 def make_grid():
     s = SVG("GRID")
-    header(s, "GRID PIANO", "4ths Layout")
-    s.rect(6, 50, 308, 146, COLORS["panel"], COLORS["border"], 6)
-    notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G"]
+    header(s, "GRID", "C Major  4TH")
+    s.rect(6, 50, 308, 144, COLORS["panel"], COLORS["border"], 6)
+    notes = ["G", "G#", "A", "A#", "B", "C", "C#", "D"]
+    scale_notes = {"C", "D", "E", "F", "G", "A", "B"}
     for r in range(5):
         for c in range(8):
-            x, y = 13 + c * 38, 60 + r * 28
-            black = "#" in notes[c]
-            s.rect(x, y, 35, 25, COLORS["bg"] if black else COLORS["surface"], COLORS["border"], 4)
-            s.text(notes[c], x + 17.5, y + 16, 8, COLORS["dim"] if black else COLORS["text"], "middle")
-    button(s, 8, 204, 48, 30, "OCT-", COLORS["secondary"])
-    button(s, 64, 204, 48, 30, "OCT+", COLORS["secondary"])
-    s.rect(126, 204, 60, 30, COLORS["panel"], r=5)
-    s.text("Oct 3", 156, 224, 11, COLORS["text"], "middle", "700")
-    s.rect(198, 204, 114, 30, COLORS["panel"], r=5)
-    s.text("Ready", 255, 224, 11, COLORS["dim"], "middle")
+            x, y = 13 + c * 38, 58 + r * 27
+            note = notes[(c + (4 - r) * 5) % 8]
+            root = note == "C"
+            in_scale = note.replace("#", "") in scale_notes and "#" not in note
+            fill = COLORS["accent"] if root else (COLORS["surface"] if in_scale else COLORS["bg"])
+            stroke = COLORS["text"] if root else (COLORS["primary"] if in_scale else COLORS["border"])
+            text = COLORS["bg"] if root else (COLORS["text"] if in_scale else COLORS["dim"])
+            s.rect(x, y, 35, 24, fill, stroke, 4)
+            s.text(note, x + 17.5, y + 16, 8, text, "middle")
+    for args in [
+        (8, 200, 34, 18, "O-", COLORS["secondary"]),
+        (48, 200, 34, 18, "O+", COLORS["secondary"]),
+        (90, 200, 42, 18, "4TH", COLORS["accent"]),
+        (140, 200, 46, 18, "FREE", COLORS["secondary"]),
+        (194, 200, 46, 18, "TAP", COLORS["secondary"]),
+        (248, 200, 54, 18, "SCALE", COLORS["warning"]),
+    ]:
+        button(s, *args)
+    s.rect(8, 222, 304, 16, COLORS["panel"], COLORS["border"], 4)
+    s.text("Oct 3  Vel 100  Ready", 160, 234, 8, COLORS["dim"], "middle")
     return s.finish()
 
 
@@ -315,28 +364,64 @@ def make_lfo():
 
 def make_rng():
     s = SVG("RNG")
-    header(s, "RNG JAMS", "Random Music")
+    header(s, "RNG JAMS", "C Major  120 BPM")
     s.rect(6, 50, 308, 178, COLORS["panel"], COLORS["border"], 6)
-    button(s, 14, 56, 62, 30, "PLAY", COLORS["success"])
-    s.text("KEY", 88, 64, 8, COLORS["dim"])
-    button(s, 116, 56, 42, 30, "C4", COLORS["primary"])
-    button(s, 164, 56, 30, 30, "+", COLORS["secondary"])
-    button(s, 200, 56, 30, 30, "-", COLORS["secondary"])
-    button(s, 238, 56, 66, 30, "Major", COLORS["accent"])
-    rows = [("OCT", "3-6", 90), ("CHANCE", "50%", 124), ("BPM", "120", 158)]
-    for lab, val, y in rows:
-        s.text(lab, 16, y + 8, 8, COLORS["dim"])
-        s.text(val, 16, y + 23, 12, COLORS["text"], weight="700")
-    s.rect(160, 133, 144, 14, COLORS["bg"], COLORS["border"], 3)
-    s.rect(161, 134, 70, 12, COLORS["primary"], r=2)
-    s.rect(14, 192, 290, 28, COLORS["bg"], r=5)
-    s.text("Idle", 160, 211, 12, COLORS["dim"], "middle")
+    y = 56
+    for args in [
+        (14, y, 50, 24, "PLAY", COLORS["success"]),
+        (70, y, 42, 24, "NEW", COLORS["accent"]),
+        (118, y, 42, 24, "VAR", COLORS["warning"]),
+        (168, y, 56, 24, "MID", COLORS["primary"]),
+        (232, y, 32, 24, "LEN", COLORS["secondary"]),
+    ]:
+        button(s, *args)
+    s.rect(272, y, 34, 24, COLORS["bg"], COLORS["border"], 5)
+    s.text("8", 289, y + 16, 8, COLORS["text"], "middle", "700")
+    y += 30
+    s.text("ROOT", 16, y + 16, 8, COLORS["dim"])
+    button(s, 52, y, 24, 24, "-", COLORS["secondary"])
+    s.rect(82, y, 34, 24, COLORS["bg"], r=5)
+    s.text("C", 99, y + 16, 8, COLORS["text"], "middle", "700")
+    button(s, 122, y, 24, 24, "+", COLORS["secondary"])
+    button(s, 156, y, 66, 24, "Major", COLORS["accent"])
+    button(s, 232, y, 28, 24, "B-", COLORS["secondary"])
+    button(s, 264, y, 34, 24, "B+", COLORS["secondary"])
+    y += 30
+    s.text("DENS", 16, y + 16, 8, COLORS["dim"])
+    button(s, 54, y, 24, 24, "-", COLORS["secondary"])
+    s.text("55", 98, y + 16, 8, COLORS["text"], "middle", "700")
+    button(s, 120, y, 24, 24, "+", COLORS["secondary"])
+    s.text("VAR", 160, y + 16, 8, COLORS["dim"])
+    button(s, 190, y, 24, 24, "-", COLORS["secondary"])
+    s.text("25", 232, y + 16, 8, COLORS["text"], "middle", "700")
+    button(s, 256, y, 24, 24, "+", COLORS["secondary"])
+    y += 30
+    s.text("GATE", 16, y + 16, 8, COLORS["dim"])
+    button(s, 54, y, 24, 24, "-", COLORS["secondary"])
+    s.text("65", 98, y + 16, 8, COLORS["text"], "middle", "700")
+    button(s, 120, y, 24, 24, "+", COLORS["secondary"])
+    s.text("BEAT", 160, y + 16, 8, COLORS["dim"])
+    button(s, 198, y, 24, 24, "<", COLORS["secondary"])
+    s.text("1/8", 244, y + 16, 8, COLORS["text"], "middle", "700")
+    button(s, 278, y, 24, 24, ">", COLORS["secondary"])
+    y += 31
+    s.rect(14, y, 292, 34, COLORS["bg"], r=5)
+    phrase = [1, 5, None, 3, 6, 5, None, 1]
+    for i in range(16):
+        x = 20 + i * 18
+        active = i < 8
+        rest = i < 8 and phrase[i] is None
+        fill = COLORS["panel"] if not active else (COLORS["bg"] if rest else COLORS["primary"])
+        stroke = COLORS["panel"] if not active else COLORS["border"]
+        s.rect(x, y + 5, 16, 20, fill, stroke, 3)
+        if active and not rest:
+            s.text(str(phrase[i]), x + 8, y + 19, 8, COLORS["bg"], "middle", "700")
     return s.finish()
 
 
 def make_zen():
     s = SVG("ZEN")
-    header(s, "ZEN", "Ambient Bouncing")
+    header(s, "ZEN", "Ambient Generative")
     s.rect(44, 54, 238, 132, COLORS["panel"], COLORS["border"], 6)
     for x in range(50, 274, 28):
         s.rect(x, 60, 28, 3, COLORS["primary"])
@@ -347,9 +432,24 @@ def make_zen():
     s.circle(130, 116, 6, "#5abfff", COLORS["text"])
     s.circle(194, 92, 5, "#b2ff7a", COLORS["text"])
     s.rect(8, 188, 304, 12, COLORS["panel"], r=3)
-    s.text("C-1 Major  Oct 4  Balls 2", 160, 198, 8, COLORS["dim"], "middle")
-    for args in [(8,202,44,30,"ADD",COLORS["success"]), (58,202,54,30,"RESET",COLORS["warning"]), (120,202,58,30,"SCALE",COLORS["accent"]), (186,202,42,30,"KEY-",COLORS["secondary"]), (234,202,42,30,"KEY+",COLORS["secondary"]), (282,202,30,30,"O",COLORS["primary"])]:
+    s.text("C Major  D65 L240  B2", 160, 198, 8, COLORS["dim"], "middle")
+    for args in [
+        (8, 202, 36, 16, "ADD", COLORS["success"]),
+        (50, 202, 44, 16, "CALM", COLORS["primary"]),
+        (100, 202, 48, 16, "CHAOS", COLORS["error"]),
+        (156, 202, 26, 16, "D-", COLORS["secondary"]),
+        (188, 202, 26, 16, "D+", COLORS["secondary"]),
+        (222, 202, 34, 16, "L-", COLORS["secondary"]),
+        (264, 202, 34, 16, "L+", COLORS["secondary"]),
+        (8, 222, 44, 16, "RESET", COLORS["warning"]),
+        (60, 222, 46, 16, "SCALE", COLORS["accent"]),
+        (114, 222, 34, 16, "KEY-", COLORS["secondary"]),
+        (156, 222, 34, 16, "KEY+", COLORS["secondary"]),
+        (198, 222, 28, 16, "O", COLORS["primary"]),
+    ]:
         button(s, *args)
+    s.rect(236, 222, 76, 16, COLORS["panel"], COLORS["border"], 4)
+    s.text("Oct 4", 274, 234, 8, COLORS["dim"], "middle")
     return s.finish()
 
 
@@ -357,40 +457,83 @@ def make_drop():
     s = SVG("DROP")
     header(s, "DROP", "Tap to Drop")
     s.rect(6, 50, 308, 134, COLORS["panel"], COLORS["border"], 6)
-    s.rect(80, 160, 60, 8, COLORS["primary"], COLORS["border"])
-    s.rect(180, 140, 50, 8, COLORS["secondary"], COLORS["border"])
-    s.rect(120, 120, 40, 8, COLORS["accent"], COLORS["border"])
+    s.rect(72, 160, 68, 8, COLORS["primary"], COLORS["border"])
+    s.rect(178, 140, 58, 8, COLORS["secondary"], COLORS["border"])
+    s.rect(118, 118, 48, 8, COLORS["accent"], COLORS["border"])
     s.circle(110, 86, 5, "#7bcfff", COLORS["text"])
     s.circle(170, 105, 4, "#ffcf5a", COLORS["text"])
     s.rect(8, 187, 304, 12, COLORS["panel"], r=3)
-    s.text("C-1 Major  Oct 4  Balls 2", 160, 197, 8, COLORS["dim"], "middle")
-    for args in [(8,202,48,30,"EDIT",COLORS["warning"]), (62,202,58,30,"CLEAR",COLORS["error"]), (128,202,58,30,"SCALE",COLORS["accent"]), (194,202,42,30,"KEY-",COLORS["secondary"]), (242,202,42,30,"KEY+",COLORS["secondary"]), (290,202,22,30,"O",COLORS["primary"])]:
+    s.text("C Major  Oct 4  G15 L180", 160, 197, 8, COLORS["dim"], "middle")
+    for args in [
+        (8, 202, 40, 16, "EDIT", COLORS["warning"]),
+        (54, 202, 42, 16, "PRE", COLORS["accent"]),
+        (104, 202, 34, 16, "CLR", COLORS["error"]),
+        (146, 202, 26, 16, "G-", COLORS["secondary"]),
+        (178, 202, 26, 16, "G+", COLORS["secondary"]),
+        (212, 202, 34, 16, "L-", COLORS["secondary"]),
+        (254, 202, 34, 16, "L+", COLORS["secondary"]),
+        (8, 222, 46, 16, "SCALE", COLORS["accent"]),
+        (62, 222, 34, 16, "K-", COLORS["secondary"]),
+        (104, 222, 34, 16, "K+", COLORS["secondary"]),
+        (146, 222, 28, 16, "O", COLORS["primary"]),
+    ]:
         button(s, *args)
+    s.rect(184, 222, 128, 16, COLORS["panel"], COLORS["border"], 4)
+    s.text("RISE  B2 P3", 248, 234, 8, COLORS["dim"], "middle")
     return s.finish()
 
 
 def make_arp():
     s = SVG("ARP")
-    header(s, "ARPEGGIATOR", "Piano Chord Arps")
-    s.rect(6, 50, 308, 104, COLORS["panel"], COLORS["border"], 6)
-    s.text("Pattern:", 10, 71, 8, COLORS["dim"])
-    button(s, 65, 55, 60, 25, "UP", COLORS["warning"])
-    button(s, 130, 55, 25, 25, "<", COLORS["secondary"])
-    button(s, 160, 55, 25, 25, ">", COLORS["secondary"])
-    s.text("Type:", 200, 71, 8, COLORS["dim"])
-    button(s, 240, 55, 50, 25, "MAJ", COLORS["accent"])
-    s.text("Octaves: 2", 10, 96, 8, COLORS["dim"])
-    button(s, 90, 80, 25, 25, "-", COLORS["secondary"])
-    button(s, 120, 80, 25, 25, "+", COLORS["secondary"])
-    s.text("Speed: 8th", 160, 96, 8, COLORS["dim"])
-    button(s, 240, 80, 25, 25, "+", COLORS["secondary"])
-    button(s, 270, 80, 25, 25, "-", COLORS["secondary"])
-    s.text("BPM: 120", 10, 121, 8, COLORS["dim"])
-    s.rect(4, 154, 312, 59, COLORS["panel"], COLORS["border"], 6)
-    for i in range(12):
-        x = i * 26
-        sharp = i in [1, 3, 6, 8, 10]
-        s.rect(x + 1, 161, 24, 43, COLORS["bg"] if sharp else COLORS["surface"], COLORS["border"], 4)
+    header(s, "ARP", "C Major  120 BPM")
+    s.rect(6, 48, 308, 108, COLORS["panel"], COLORS["border"], 6)
+    y = 52
+    s.text("PAT", 12, y + 16, 8, COLORS["dim"])
+    button(s, 40, y, 58, 24, "UP", COLORS["warning"])
+    button(s, 104, y, 24, 24, "<", COLORS["secondary"])
+    button(s, 132, y, 24, 24, ">", COLORS["secondary"])
+    s.text("CHD", 178, y + 16, 8, COLORS["dim"])
+    button(s, 208, y, 48, 24, "DIA", COLORS["accent"])
+    button(s, 264, y, 42, 24, "HOLD", COLORS["success"])
+    y += 26
+    s.text("OCT", 12, y + 16, 8, COLORS["dim"])
+    button(s, 42, y, 24, 24, "-", COLORS["secondary"])
+    s.text("2", 82, y + 16, 8, COLORS["text"], "middle", "700")
+    button(s, 98, y, 24, 24, "+", COLORS["secondary"])
+    s.text("RATE", 142, y + 16, 8, COLORS["dim"])
+    button(s, 180, y, 24, 24, "-", COLORS["secondary"])
+    s.text("1/8", 226, y + 16, 8, COLORS["text"], "middle", "700")
+    button(s, 264, y, 24, 24, "+", COLORS["secondary"])
+    y += 26
+    s.text("BPM", 12, y + 16, 8, COLORS["dim"])
+    button(s, 42, y, 24, 24, "-", COLORS["secondary"])
+    s.text("120", 86, y + 16, 8, COLORS["text"], "middle", "700")
+    button(s, 112, y, 24, 24, "+", COLORS["secondary"])
+    s.text("GATE", 158, y + 16, 8, COLORS["dim"])
+    button(s, 198, y, 24, 24, "-", COLORS["secondary"])
+    s.text("70", 244, y + 16, 8, COLORS["text"], "middle", "700")
+    button(s, 276, y, 24, 24, "+", COLORS["secondary"])
+    y += 26
+    s.text("ROOT", 12, y + 16, 8, COLORS["dim"])
+    button(s, 50, y, 28, 24, "-", COLORS["secondary"])
+    s.text("C", 100, y + 16, 8, COLORS["text"], "middle", "700")
+    button(s, 124, y, 28, 24, "+", COLORS["secondary"])
+    s.text("PAD", 174, y + 16, 8, COLORS["dim"])
+    button(s, 206, y, 28, 24, "-", COLORS["secondary"])
+    s.text("O4", 256, y + 16, 8, COLORS["text"], "middle", "700")
+    button(s, 284, y, 24, 24, "+", COLORS["secondary"])
+    s.rect(170, 132, 136, 18, COLORS["bg"], r=4)
+    s.text("READY", 238, 145, 8, COLORS["dim"], "middle", "700")
+    s.rect(6, 158, 308, 72, COLORS["panel"], COLORS["border"], 6)
+    names = ["I", "ii", "iii", "IV", "V", "vi", "vii", "I+"]
+    notes = ["C4", "D4", "E4", "F4", "G4", "A4", "B4", "C5"]
+    cols = [COLORS["primary"], COLORS["secondary"], COLORS["accent"], COLORS["success"],
+            COLORS["warning"], COLORS["error"], "#ff00ff", COLORS["primary"]]
+    for i in range(8):
+        x = 10 + i * 39
+        s.rect(x, 164, 37, 58, COLORS["bg"], cols[i], 5)
+        s.text(names[i], x + 18.5, 190, 12, COLORS["text"], "middle", "700")
+        s.text(notes[i], x + 18.5, 211, 8, COLORS["dim"], "middle")
     return s.finish()
 
 
