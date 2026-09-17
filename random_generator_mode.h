@@ -395,7 +395,16 @@ void mutateRandomStep(int step) {
   } else {
     randomGen.phraseDegrees[step] = getRandomWeightedDegree();
   }
-  randomGen.phraseOctaves[step] = getRandomRegionOctave();
+
+  // Store unshifted octave
+  int oct = 4;
+  switch (randomGen.region) {
+    case 0: oct = random(2, 4); break; // bass
+    case 1: oct = random(3, 6); break; // mid
+    case 2: oct = random(4, 7); break; // lead
+    case 3: oct = random(5, 8); break; // sparkle
+  }
+  randomGen.phraseOctaves[step] = oct;
 }
 
 void cycleRandomSubdivision(int amount) {
@@ -418,7 +427,15 @@ void cycleRandomPhraseLength() {
 void cycleRandomRegion() {
   randomGen.region = (randomGen.region + 1) % RNG_REGIONS;
   for (int i = 0; i < RNG_MAX_STEPS; i++) {
-    randomGen.phraseOctaves[i] = getRandomRegionOctave();
+    // Store unshifted octave
+    int oct = 4;
+    switch (randomGen.region) {
+      case 0: oct = random(2, 4); break;
+      case 1: oct = random(3, 6); break;
+      case 2: oct = random(4, 7); break;
+      case 3: oct = random(5, 8); break;
+    }
+    randomGen.phraseOctaves[i] = oct;
   }
 }
 
@@ -447,11 +464,12 @@ int getRandomRegionOctave() {
     case 2: oct = random(4, 7); break; // lead
     case 3: oct = random(5, 8); break; // sparkle
   }
-  return constrain(oct + randomGen.baseOctaveShift, 1, 8);
+  return oct;
 }
 
 int getRandomStepNote(int step) {
-  return getNoteInScale(performance.scale, randomGen.phraseDegrees[step], randomGen.phraseOctaves[step]);
+  int shiftedOctave = constrain(randomGen.phraseOctaves[step] + randomGen.baseOctaveShift, 1, 8);
+  return getNoteInScale(performance.scale, randomGen.phraseDegrees[step], shiftedOctave);
 }
 
 int getRandomVelocity(int degree, int step) {
