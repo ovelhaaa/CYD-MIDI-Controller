@@ -16,6 +16,7 @@ struct RandomGen {
   int subdivision = 8;    // 4=quarter, 8=eighth, 16=sixteenth
   int phraseLength = 8;   // 4, 8, 16
   int region = 1;         // 0=bass, 1=mid, 2=lead, 3=spark
+  int baseOctaveShift = 0; // -2 to +2
   bool isPlaying = false;
   unsigned long nextStepTime = 0;
   unsigned long noteOffTime = 0;
@@ -108,14 +109,22 @@ void drawRandomGenControls() {
   y += 30;
   tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
   tft.drawString("ROOT", 16, y + 8, 1);
-  drawRngButton(52, y, 24, 24, "-", THEME_SECONDARY);
-  tft.fillRoundRect(82, y, 34, 24, 5, THEME_BG);
+  drawRngButton(44, y, 24, 24, "-", THEME_SECONDARY);
+  tft.fillRoundRect(70, y, 34, 24, 5, THEME_BG);
   tft.setTextColor(THEME_TEXT, THEME_BG);
-  tft.drawCentreString(getRootName(), 99, y + 8, 1);
-  drawRngButton(122, y, 24, 24, "+", THEME_SECONDARY);
-  drawRngButton(156, y, 66, 24, scales[performance.scale].name, THEME_ACCENT);
-  drawRngButton(232, y, 28, 24, "B-", THEME_SECONDARY);
-  drawRngButton(264, y, 34, 24, "B+", THEME_SECONDARY);
+  tft.drawCentreString(getRootName(), 87, y + 8, 1);
+  drawRngButton(106, y, 24, 24, "+", THEME_SECONDARY);
+  drawRngButton(132, y, 46, 24, scales[performance.scale].name, THEME_ACCENT);
+  drawRngButton(180, y, 26, 24, "B-", THEME_SECONDARY);
+  drawRngButton(208, y, 26, 24, "B+", THEME_SECONDARY);
+  drawRngButton(236, y, 28, 24, "O-", THEME_SECONDARY);
+  drawRngButton(266, y, 28, 24, "O+", THEME_SECONDARY);
+
+  if (randomGen.baseOctaveShift != 0) {
+    tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
+    String shiftText = (randomGen.baseOctaveShift > 0 ? "+" : "") + String(randomGen.baseOctaveShift);
+    tft.drawCentreString(shiftText, 263, y - 8, 1);
+  }
 
   y += 30;
   tft.setTextColor(THEME_TEXT_DIM, THEME_PANEL);
@@ -155,12 +164,19 @@ void drawRandomGenControls() {
     bool inPhrase = i < randomGen.phraseLength;
     bool current = randomGen.isPlaying && i == randomGen.currentStep;
     bool rest = randomGen.phraseDegrees[i] < 0;
-    uint16_t fill = !inPhrase ? THEME_PANEL : (rest ? THEME_BG : THEME_PRIMARY);
+    uint16_t fill;
+    if (!inPhrase) fill = THEME_PANEL;
+    else if (rest) fill = THEME_BG;
+    else if (current) fill = THEME_ACCENT; // Highlight current step with accent color
+    else fill = THEME_PRIMARY;
+
     uint16_t border = current ? THEME_TEXT : (inPhrase ? THEME_BORDER : THEME_PANEL);
+
     tft.fillRoundRect(x, y + 5, stepW, 20, 3, fill);
     tft.drawRoundRect(x, y + 5, stepW, 20, 3, border);
+
     if (inPhrase && !rest) {
-      tft.setTextColor(fill == THEME_PRIMARY ? THEME_BG : THEME_TEXT_DIM, fill);
+      tft.setTextColor((fill == THEME_PRIMARY || fill == THEME_ACCENT) ? THEME_BG : THEME_TEXT_DIM, fill);
       tft.drawCentreString(String((randomGen.phraseDegrees[i] % 7) + 1), x + stepW / 2, y + 11, 1);
     }
   }
@@ -215,34 +231,44 @@ void handleRandomGeneratorMode() {
     }
 
     y += 30;
-    if (isButtonPressed(52, y, 24, 24)) {
+    if (isButtonPressed(44, y, 24, 24)) {
       stopRandomNote();
       nudgeGlobalRoot(-1);
       drawRandomGeneratorMode();
       return;
     }
-    if (isButtonPressed(122, y, 24, 24)) {
+    if (isButtonPressed(106, y, 24, 24)) {
       stopRandomNote();
       nudgeGlobalRoot(1);
       drawRandomGeneratorMode();
       return;
     }
-    if (isButtonPressed(156, y, 66, 24)) {
+    if (isButtonPressed(132, y, 46, 24)) {
       stopRandomNote();
       nudgeGlobalScale(1);
       generateRandomPhrase();
       drawRandomGeneratorMode();
       return;
     }
-    if (isButtonPressed(232, y, 28, 24)) {
+    if (isButtonPressed(180, y, 26, 24)) {
       nudgeGlobalBpm(-5);
       calculateNoteInterval();
       drawRandomGenControls();
       return;
     }
-    if (isButtonPressed(264, y, 34, 24)) {
+    if (isButtonPressed(208, y, 26, 24)) {
       nudgeGlobalBpm(5);
       calculateNoteInterval();
+      drawRandomGenControls();
+      return;
+    }
+    if (isButtonPressed(236, y, 28, 24)) { // O-
+      randomGen.baseOctaveShift = max(-2, randomGen.baseOctaveShift - 1);
+      drawRandomGenControls();
+      return;
+    }
+    if (isButtonPressed(266, y, 28, 24)) { // O+
+      randomGen.baseOctaveShift = min(2, randomGen.baseOctaveShift + 1);
       drawRandomGenControls();
       return;
     }
@@ -414,13 +440,14 @@ int getRandomWeightedDegree() {
 }
 
 int getRandomRegionOctave() {
+  int oct = 4;
   switch (randomGen.region) {
-    case 0: return random(2, 4); // bass
-    case 1: return random(3, 6); // mid
-    case 2: return random(4, 7); // lead
-    case 3: return random(5, 8); // sparkle
+    case 0: oct = random(2, 4); break; // bass
+    case 1: oct = random(3, 6); break; // mid
+    case 2: oct = random(4, 7); break; // lead
+    case 3: oct = random(5, 8); break; // sparkle
   }
-  return 4;
+  return constrain(oct + randomGen.baseOctaveShift, 1, 8);
 }
 
 int getRandomStepNote(int step) {

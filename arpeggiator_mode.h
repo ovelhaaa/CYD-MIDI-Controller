@@ -182,12 +182,18 @@ void drawArpDegreePads() {
   for (int i = 0; i < ARP_DEGREES; i++) {
     int x = startX + i * (keyWidth + gap);
     bool active = arp.isPlaying && arp.triggeredDegree == i;
-    uint16_t bgColor = active ? degreeColors[i] : THEME_BG;
+
+    // Highlight if note is currently playing on this degree's chord
+    bool isPlayingNote = active && arp.currentNote != -1;
+
+    uint16_t bgColor = active ? (isPlayingNote ? THEME_TEXT : degreeColors[i]) : THEME_BG;
     uint16_t textColor = active ? THEME_BG : THEME_TEXT;
+    uint16_t borderColor = active ? THEME_TEXT : degreeColors[i];
+
     int degreeNote = getArpDegreeNote(i, arp.arpOctave);
 
     tft.fillRoundRect(x, keyY, keyWidth, keyHeight, 5, bgColor);
-    tft.drawRoundRect(x, keyY, keyWidth, keyHeight, 5, active ? THEME_TEXT : degreeColors[i]);
+    tft.drawRoundRect(x, keyY, keyWidth, keyHeight, 5, borderColor);
     tft.setTextColor(textColor, bgColor);
     tft.drawCentreString(arpDegreeNames[i], x + keyWidth / 2, keyY + 12, 2);
     tft.setTextColor(active ? THEME_BG : THEME_TEXT_DIM, bgColor);
@@ -365,6 +371,7 @@ void updateArpeggiator() {
     arp.currentNote = -1;
     arp.noteOffTime = 0;
     drawArpControls();
+    drawArpDegreePads();
   }
 
   if (!arp.isPlaying) return;
@@ -405,6 +412,7 @@ void playArpNote() {
   arp.noteOffTime = millis() + ((arp.stepInterval * arp.gate) / 100);
   arp.currentStep++;
   drawArpControls();
+  drawArpDegreePads();
 }
 
 int getArpNote() {
